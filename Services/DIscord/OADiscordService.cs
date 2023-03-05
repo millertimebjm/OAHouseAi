@@ -6,15 +6,15 @@ using System.Threading;
 
 namespace OAHouseChatGpt.Services.OADiscord
 {
-    public class OADiscordService : IOADiscord
+    public class OADiscordService : IOaDiscord
     {
         private readonly DiscordSocketClient _client;
         private readonly IChatGpt _gptService;
-        private readonly IConfiguration _configurationService;
+        private readonly IOAHouseChatGptConfiguration _configurationService;
 
         public OADiscordService(
             IChatGpt gptService,
-            IConfiguration configurationService)
+            IOAHouseChatGptConfiguration configurationService)
         {
             var config = new DiscordSocketConfig() { MessageCacheSize = 100 };
             _client = new DiscordSocketClient(config);

@@ -1,10 +1,10 @@
 
 namespace OAHouseChatGpt.Services.Configuration
 {
-    public interface IConfiguration
+    public interface IOAHouseChatGptConfiguration
     {
         public ulong GetOADiscordChannelId();
         public string GetOADiscordToken();
-        public string GetOpenAIServiceApiKey();
+        public string GetOpenAIApiKey();
     }
 }

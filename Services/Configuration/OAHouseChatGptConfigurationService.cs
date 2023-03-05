@@ -1,17 +1,17 @@
 
 namespace OAHouseChatGpt.Services.Configuration
 {
-    public class ConfigurationService : IConfiguration
+    public class oAHouseChatGptConfigurationService : IOAHouseChatGptConfiguration
     {
         private ulong _oADiscordChannel;
         private string _oADiscordToken;
-        private string _openAIServiceApiKey;
+        private string _openAIApiKey;
 
-        public ConfigurationService(ulong oADiscordChannel, string oADiscordToken, string openAIServiceApiKey)
+        public oAHouseChatGptConfigurationService(ulong oADiscordChannel, string oADiscordToken, string openAIApiKey)
         {
             _oADiscordChannel = oADiscordChannel;
             _oADiscordToken = oADiscordToken;
-            _openAIServiceApiKey = openAIServiceApiKey;
+            _openAIApiKey = openAIApiKey;
         }
 
         public ulong GetOADiscordChannelId()
@@ -24,9 +24,9 @@ namespace OAHouseChatGpt.Services.Configuration
             return _oADiscordToken;
         }
 
-        public string GetOpenAIServiceApiKey()
+        public string GetOpenAIApiKey()
         {
-            return _openAIServiceApiKey;
+            return _openAIApiKey;
         }
     }
 }
