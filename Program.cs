@@ -24,8 +24,6 @@ namespace OAHouseChatGpt
                 // reasons-why-we-should-ban-kurt
                 // https://discord.com/channels/1082038301915103253/1082038514285293629
                 return new oAHouseChatGptConfigurationService(
-                    ulong.Parse(config.GetConnectionString("DiscordGuild")),
-                    ulong.Parse(config.GetConnectionString("DiscordChannel")),
                     config.GetConnectionString("DiscordToken"),
                     config.GetConnectionString("OpenAiApiKey"),
                     config.GetConnectionString("DiscordBotUsername"));

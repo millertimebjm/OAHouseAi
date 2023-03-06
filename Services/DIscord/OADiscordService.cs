@@ -39,8 +39,8 @@ namespace OAHouseChatGpt.Services.OADiscord
         private async Task OnMessageReceived(SocketMessage message)
         {
             Console.WriteLine(message.CleanContent);
-            if (message.MentionedUsers.Any(_ => _.Username == "OAHouseChatGpt")
-                || message.MentionedRoles.Any(_ => _.Name == "OAHouseChatGpt"))
+            if (message.MentionedUsers.Any(_ => _.Username == _configurationService.GetDiscordBotUsername())
+                || message.MentionedRoles.Any(_ => _.Name == _configurationService.GetDiscordBotUsername()))
             {
                 var messageWithoutMention =
                     message.CleanContent.Replace(
@@ -85,9 +85,9 @@ namespace OAHouseChatGpt.Services.OADiscord
             try
             {
                 Console.WriteLine("Connected");
-                var channel = await _client.GetChannelAsync(_configurationService.GetOADiscordChannelId());
-                Console.WriteLine(channel.Id);
-                Console.WriteLine(channel.Name);
+                // var channel = await _client.GetChannelAsync(_configurationService.GetOADiscordChannelId());
+                // Console.WriteLine(channel.Id);
+                // Console.WriteLine(channel.Name);
             }
             catch (Exception ex)
             {
