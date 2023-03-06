@@ -22,11 +22,13 @@ namespace OAHouseChatGpt
             builder.Register((c, p) =>
             {
                 // reasons-why-we-should-ban-kurt
-                // https://discord.com/channels/981565185837903927/981756920144756737 
+                // https://discord.com/channels/1082038301915103253/1082038514285293629
                 return new oAHouseChatGptConfigurationService(
-                    0,
-                    "",
-                    config.GetConnectionString("OpenAiApiKey"));
+                    ulong.Parse(config.GetConnectionString("DiscordGuild")),
+                    ulong.Parse(config.GetConnectionString("DiscordChannel")),
+                    config.GetConnectionString("DiscordToken"),
+                    config.GetConnectionString("OpenAiApiKey"),
+                    config.GetConnectionString("DiscordBotUsername"));
             }).As<IOAHouseChatGptConfiguration>();
             var container = builder.Build();
 
