@@ -12,6 +12,7 @@ namespace OAHouseChatGpt.Services.OADiscord
         private readonly DiscordSocketClient _client;
         private readonly IChatGpt _gptService;
         private readonly IOAHouseChatGptConfiguration _configurationService;
+        private IUser _discordUser;
 
         public OADiscordService(
             IChatGpt gptService,
@@ -32,26 +33,24 @@ namespace OAHouseChatGpt.Services.OADiscord
             await _client.StartAsync();
             Console.WriteLine(_client.LoginState);
             Console.WriteLine(_client.ConnectionState);
-
+            _discordUser = await _client.GetUserAsync(ulong.Parse(_configurationService.GetDiscordBotId()));
+            Console.WriteLine("Ready");
             await Task.Delay(-1);
         }
 
         private async Task OnMessageReceived(SocketMessage message)
         {
-            Console.WriteLine(message.CleanContent);
-            if (message.MentionedUsers.Any(_ => _.Username == _configurationService.GetDiscordBotUsername())
-                || message.MentionedRoles.Any(_ => _.Name == _configurationService.GetDiscordBotUsername()))
+            Console.WriteLine(message.Content);
+            if (message.MentionedUsers.Any(_ => _.Id == ulong.Parse(_configurationService.GetDiscordBotId()))
+                || message.MentionedRoles.Any(_ => _.Id == ulong.Parse(_configurationService.GetDiscordBotId())))
             {
                 var messageWithoutMention =
-                    message.CleanContent.Replace(
-                        _configurationService.GetDiscordBotUsername(), "");
+                    message.Content.Replace(
+                        _discordUser.Mention.Replace("!", ""), "");
                 Console.WriteLine(messageWithoutMention);
                 var textChannel = (await _client.GetChannelAsync(message.Channel.Id)) as SocketTextChannel;
-                // var guild = _client.GetGuild(_configurationService.GetOADiscordGuildId());
-                // var textChannel = guild.GetTextChannel(_configurationService.GetOADiscordChannelId());
-                await textChannel.TriggerTypingAsync();
 
-                if (string.IsNullOrWhiteSpace(message.CleanContent))
+                if (string.IsNullOrWhiteSpace(messageWithoutMention))
                 {
                     Thread.Sleep(3000);
                     await textChannel.SendMessageAsync($"{message.Author.Mention} Did you accidentally message the Role instead of the Member?");
@@ -60,13 +59,36 @@ namespace OAHouseChatGpt.Services.OADiscord
                 {
                     try
                     {
-                        var response = await _gptService.GetTextCompletion(messageWithoutMention);
-                        var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
-                        await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}");
+                        var context = new Dictionary<ulong, string>();
+                        var referenceMessage = message as IMessage;
+                        do
+                        {
+                            if (referenceMessage.Reference.MessageId.IsSpecified)
+                            {
+                                referenceMessage = await textChannel.GetMessageAsync(referenceMessage.Reference.MessageId.Value);
+                                context.Add(referenceMessage.Id, referenceMessage.Content);
+                            }
+                        } while (referenceMessage.Reference?.MessageId.IsSpecified ?? false);
+
+                        var responseTask = _gptService.GetTextCompletion(messageWithoutMention, context.Values);
+                        Task.Run(async () =>
+                        {
+                            await responseTask;
+                        });
+                        while (!responseTask.IsCompleted)
+                        {
+                            await textChannel.TriggerTypingAsync();
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+                        }
+                        var responseText = responseTask.Result.Choices.FirstOrDefault().Message.Content ?? "";
+                        await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}",
+                            messageReference: new MessageReference(message.Id));
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        await textChannel.SendMessageAsync($"{message.Author.Mention} There was an error retrieving your response.");
+                        await textChannel.SendMessageAsync(
+                            $"{message.Author.Mention} There was an error retrieving your response.",
+                            messageReference: new MessageReference(message.Id));
                     }
                     // if (response.CompletionStatus == CompletionStatusEnum.Success)
                     // {

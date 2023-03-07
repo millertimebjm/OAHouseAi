@@ -26,14 +26,15 @@ namespace OAHouseChatGpt
                 return new oAHouseChatGptConfigurationService(
                     config.GetConnectionString("DiscordToken"),
                     config.GetConnectionString("OpenAiApiKey"),
-                    config.GetConnectionString("DiscordBotUsername"));
+                    config.GetConnectionString("DiscordBotUsername"),
+                    config.GetConnectionString("DiscordBotId"));
             }).As<IOAHouseChatGptConfiguration>();
             var container = builder.Build();
 
             using (var scope = container.BeginLifetimeScope())
             {
-                var chatService = scope.Resolve<IChatGpt>();
-                var asdf = await chatService.GetTextCompletion("If I AddJsonBody, do I also need to add json header in RestSharp?");
+                // var chatService = scope.Resolve<IChatGpt>();
+                // var asdf = await chatService.GetTextCompletion("If I AddJsonBody, do I also need to add json header in RestSharp?");
 
                 var discordService = scope.Resolve<IOaDiscord>();
                 await discordService.Start();
