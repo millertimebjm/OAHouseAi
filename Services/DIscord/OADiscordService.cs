@@ -61,18 +61,23 @@ namespace OAHouseChatGpt.Services.OADiscord
                 {
                     try
                     {
-                        var context = new Dictionary<ulong, string>();
+                        var context = new List<MessageModel>();
                         var referenceMessage = message as IMessage;
                         do
                         {
                             if (referenceMessage.Reference?.MessageId.IsSpecified ?? false)
                             {
                                 referenceMessage = await textChannel.GetMessageAsync(referenceMessage.Reference.MessageId.Value);
-                                context.Add(referenceMessage.Id, referenceMessage.Content);
+                                context.Add(new MessageModel()
+                                {
+                                    Role = referenceMessage.Author.Id == discordBotId ? "assistant" : "user",
+                                    Content = referenceMessage.Content,
+                                });
                             }
                         } while (referenceMessage.Reference?.MessageId.IsSpecified ?? false);
 
-                        var responseTask = _gptService.GetTextCompletion(messageWithoutMention, context.Values);
+                        var responseTask = _gptService.GetTextCompletion(messageWithoutMention, context);
+                        //#pragma warning disable RCS4014, cs4014
                         Task.Run(async () =>
                         {
                             await responseTask;
@@ -109,9 +114,6 @@ namespace OAHouseChatGpt.Services.OADiscord
             try
             {
                 Console.WriteLine("Connected");
-                // var channel = await _client.GetChannelAsync(_configurationService.GetOADiscordChannelId());
-                // Console.WriteLine(channel.Id);
-                // Console.WriteLine(channel.Name);
             }
             catch (Exception ex)
             {

@@ -14,7 +14,7 @@ namespace OAHouseChatGpt.Services.ChatGpt
             OpenAIApiKey = configurationService.GetOpenAIApiKey();
         }
 
-        public async Task<ChatGptResponseModel> GetTextCompletion(string text, IEnumerable<string> context = null)
+        public async Task<ChatGptResponseModel> GetTextCompletion(string text, IEnumerable<MessageModel> context = null)
         {
             if (string.IsNullOrWhiteSpace(OpenAIApiKey)) return null;
 
@@ -22,20 +22,23 @@ namespace OAHouseChatGpt.Services.ChatGpt
             var request = new RestRequest("/v1/chat/completions", Method.Post);
             request.AddHeader("Authorization", $"Bearer {OpenAIApiKey}");
             request.AddHeader("Content-Type", "application/json");
-            var messages = new List<string>();
-            messages.Add(text);
-            messages.AddRange(context ?? new List<string>());
+            var messages = new List<MessageModel>();
+            messages.Add(new MessageModel()
+            {
+                Role = "user",
+                Content = text,
+            });
+            messages.AddRange(context ?? new List<MessageModel>());
             var body = new
             {
                 model = "gpt-3.5-turbo",
                 messages = messages.Select(_ => new
                 {
-                    role = "user",
-                    content = _,
+                    role = _.Role,
+                    content = _.Content,
                 }),
             };
             request.AddJsonBody(body);
-            //var response = await client.ExecuteAsync<dynamic>(request);
             var response = await client.ExecuteAsync<ChatGptResponseModel>(request);
             var model = response.Data;
             // var options = new JsonSerializerOptions
