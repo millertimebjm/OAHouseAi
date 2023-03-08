@@ -22,33 +22,27 @@ namespace OAHouseChatGpt.Services.ChatGpt
             var request = new RestRequest("/v1/chat/completions", Method.Post);
             request.AddHeader("Authorization", $"Bearer {OpenAIApiKey}");
             request.AddHeader("Content-Type", "application/json");
+            var messages = new List<string>();
+            messages.Add(text);
+            messages.AddRange(context ?? new List<string>());
             var body = new
             {
                 model = "gpt-3.5-turbo",
-                messages = new[]
-                {
-                    new
-                    {
-                        role = "user",
-                        content = text,
-                    },
-                },
-            };
-            foreach (var message in context ?? new List<string>())
-            {
-                body.messages.Append(new
+                messages = messages.Select(_ => new
                 {
                     role = "user",
-                    content = message,
-                });
-            }
-            request.AddJsonBody(body);
-            var response = await client.ExecuteAsync<dynamic>(request);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
+                    content = _,
+                }),
             };
-            var model = JsonSerializer.Deserialize<ChatGptResponseModel>(response.Content, options);
+            request.AddJsonBody(body);
+            //var response = await client.ExecuteAsync<dynamic>(request);
+            var response = await client.ExecuteAsync<ChatGptResponseModel>(request);
+            var model = response.Data;
+            // var options = new JsonSerializerOptions
+            // {
+            //     PropertyNameCaseInsensitive = true
+            // };
+            // var model = JsonSerializer.Deserialize<ChatGptResponseModel>(response.Content, options);
             return model;
         }
     }

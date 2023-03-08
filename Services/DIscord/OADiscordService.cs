@@ -33,7 +33,8 @@ namespace OAHouseChatGpt.Services.OADiscord
             await _client.StartAsync();
             Console.WriteLine(_client.LoginState);
             Console.WriteLine(_client.ConnectionState);
-            _discordUser = await _client.GetUserAsync(ulong.Parse(_configurationService.GetDiscordBotId()));
+            var discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
+            _discordUser = await _client.GetUserAsync(discordBotId);
             Console.WriteLine("Ready");
             await Task.Delay(-1);
         }
@@ -41,8 +42,9 @@ namespace OAHouseChatGpt.Services.OADiscord
         private async Task OnMessageReceived(SocketMessage message)
         {
             Console.WriteLine(message.Content);
-            if (message.MentionedUsers.Any(_ => _.Id == ulong.Parse(_configurationService.GetDiscordBotId()))
-                || message.MentionedRoles.Any(_ => _.Id == ulong.Parse(_configurationService.GetDiscordBotId())))
+            var discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
+            if (message.MentionedUsers.Any(_ => _.Id == discordBotId)
+                || message.MentionedRoles.Any(_ => _.Id == discordBotId))
             {
                 var messageWithoutMention =
                     message.Content.Replace(
@@ -63,7 +65,7 @@ namespace OAHouseChatGpt.Services.OADiscord
                         var referenceMessage = message as IMessage;
                         do
                         {
-                            if (referenceMessage.Reference.MessageId.IsSpecified)
+                            if (referenceMessage.Reference?.MessageId.IsSpecified ?? false)
                             {
                                 referenceMessage = await textChannel.GetMessageAsync(referenceMessage.Reference.MessageId.Value);
                                 context.Add(referenceMessage.Id, referenceMessage.Content);
