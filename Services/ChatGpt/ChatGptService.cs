@@ -8,45 +8,47 @@ namespace OAHouseChatGpt.Services.ChatGpt
 {
     public class ChatGptService : IChatGpt
     {
-        private readonly string OpenAIApiKey;
+        private readonly string _openAIApiKey;
         public ChatGptService(IOAHouseChatGptConfiguration configurationService)
         {
-            OpenAIApiKey = configurationService.GetOpenAIApiKey();
+            _openAIApiKey = configurationService.GetOpenAIApiKey();
         }
 
-        public async Task<ChatGptResponseModel> GetTextCompletion(string text, IEnumerable<MessageModel> context = null)
+        public async Task<ChatGptResponseModel> GetTextCompletion(
+            string text,
+            IEnumerable<ChatGptMessageModel> context = null)
         {
-            if (string.IsNullOrWhiteSpace(OpenAIApiKey)) return null;
+            if (string.IsNullOrWhiteSpace(_openAIApiKey)) return null;
 
             var client = new RestClient("https://api.openai.com");
             var request = new RestRequest("/v1/chat/completions", Method.Post);
-            request.AddHeader("Authorization", $"Bearer {OpenAIApiKey}");
+            request.AddHeader("Authorization", $"Bearer {_openAIApiKey}");
             request.AddHeader("Content-Type", "application/json");
-            var messages = new List<MessageModel>();
-            messages.Add(new MessageModel()
-            {
-                Role = "user",
-                Content = text,
-            });
-            messages.AddRange(context ?? new List<MessageModel>());
-            var body = new
-            {
-                model = "gpt-3.5-turbo",
-                messages = messages.Select(_ => new
-                {
-                    role = _.Role,
-                    content = _.Content,
-                }),
-            };
-            request.AddJsonBody(body);
+            request.AddJsonBody(CreateBody(text, context));
             var response = await client.ExecuteAsync<ChatGptResponseModel>(request);
-            var model = response.Data;
             // var options = new JsonSerializerOptions
             // {
             //     PropertyNameCaseInsensitive = true
             // };
             // var model = JsonSerializer.Deserialize<ChatGptResponseModel>(response.Content, options);
-            return model;
+            return response.Data;
+        }
+
+        private ChatGptBodyModel CreateBody(string text, IEnumerable<ChatGptMessageModel> context)
+        {
+            var messages = new List<ChatGptMessageModel>();
+            messages.AddRange(context ?? new List<ChatGptMessageModel>());
+            messages.Add(new ChatGptMessageModel()
+            {
+                Role = "user",
+                Content = text,
+            });
+            var body = new ChatGptBodyModel()
+            {
+                Model = "gpt-3.5-turbo",
+                Messages = messages,
+            };
+            return body;
         }
     }
 }

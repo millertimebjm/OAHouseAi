@@ -13,6 +13,7 @@ namespace OAHouseChatGpt.Services.OADiscord
         private readonly IChatGpt _gptService;
         private readonly IOAHouseChatGptConfiguration _configurationService;
         private IUser _discordUser;
+        private readonly ulong _discordBotId;
 
         public OADiscordService(
             IChatGpt gptService,
@@ -22,6 +23,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             _client = new DiscordSocketClient(config);
             _gptService = gptService;
             _configurationService = configurationService;
+            _discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
         }
 
         public async Task Start()
@@ -33,8 +35,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             await _client.StartAsync();
             Console.WriteLine(_client.LoginState);
             Console.WriteLine(_client.ConnectionState);
-            var discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
-            _discordUser = await _client.GetUserAsync(discordBotId);
+            _discordUser = await _client.GetUserAsync(_discordBotId);
             Console.WriteLine("Ready");
             await Task.Delay(-1);
         }
@@ -42,71 +43,93 @@ namespace OAHouseChatGpt.Services.OADiscord
         private async Task OnMessageReceived(SocketMessage message)
         {
             Console.WriteLine(message.Content);
-            var discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
-            if (message.MentionedUsers.Any(_ => _.Id == discordBotId)
-                || message.MentionedRoles.Any(_ => _.Id == discordBotId))
+            if (!message.MentionedUsers.Any(_ => _.Id == _discordBotId)
+                && !message.MentionedRoles.Any(_ => _.Id == _discordBotId))
+                return;
+
+            var messageWithoutMention =
+                message.Content.Replace(
+                    _discordUser.Mention.Replace("!", ""), "");
+            Console.WriteLine(messageWithoutMention);
+            var textChannel = (await _client.GetChannelAsync(message.Channel.Id)) as SocketTextChannel;
+
+            if (string.IsNullOrWhiteSpace(messageWithoutMention))
             {
-                var messageWithoutMention =
-                    message.Content.Replace(
-                        _discordUser.Mention.Replace("!", ""), "");
-                Console.WriteLine(messageWithoutMention);
-                var textChannel = (await _client.GetChannelAsync(message.Channel.Id)) as SocketTextChannel;
-
-                if (string.IsNullOrWhiteSpace(messageWithoutMention))
-                {
-                    Thread.Sleep(3000);
-                    await textChannel.SendMessageAsync($"{message.Author.Mention} Did you accidentally message the Role instead of the Member?");
-                }
-                else
-                {
-                    try
-                    {
-                        var context = new List<MessageModel>();
-                        var referenceMessage = message as IMessage;
-                        do
-                        {
-                            if (referenceMessage.Reference?.MessageId.IsSpecified ?? false)
-                            {
-                                referenceMessage = await textChannel.GetMessageAsync(referenceMessage.Reference.MessageId.Value);
-                                context.Add(new MessageModel()
-                                {
-                                    Role = referenceMessage.Author.Id == discordBotId ? "assistant" : "user",
-                                    Content = referenceMessage.Content,
-                                });
-                            }
-                        } while (referenceMessage.Reference?.MessageId.IsSpecified ?? false);
-
-                        var responseTask = _gptService.GetTextCompletion(messageWithoutMention, context);
-                        //#pragma warning disable RCS4014, cs4014
-                        Task.Run(async () =>
-                        {
-                            await responseTask;
-                        });
-                        while (!responseTask.IsCompleted)
-                        {
-                            await textChannel.TriggerTypingAsync();
-                            await Task.Delay(TimeSpan.FromSeconds(2));
-                        }
-                        var responseText = responseTask.Result.Choices.FirstOrDefault().Message.Content ?? "";
-                        await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}",
-                            messageReference: new MessageReference(message.Id));
-                    }
-                    catch (Exception ex)
-                    {
-                        await textChannel.SendMessageAsync(
-                            $"{message.Author.Mention} There was an error retrieving your response.",
-                            messageReference: new MessageReference(message.Id));
-                    }
-                    // if (response.CompletionStatus == CompletionStatusEnum.Success)
-                    // {
-                    //     await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}");
-                    // }
-                    // else
-                    // {
-                    //     await textChannel.SendMessageAsync($"{message.Author.Mention} There was an error retrieving your response.");
-                    // }
-                }
+                Thread.Sleep(3000);
+                await textChannel.SendMessageAsync($"{message.Author.Mention} Did you accidentally message the Role instead of the Member?");
+                return;
             }
+
+            try
+            {
+                var context = await GetReferencedMessages(
+                    message,
+                    textChannel,
+                    _discordBotId);
+                var response = await CallTextCompletionAndWaitWithTyping(
+                    messageWithoutMention,
+                    context,
+                    textChannel);
+                var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
+                await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}",
+                    messageReference: new MessageReference(message.Id));
+            }
+            catch (Exception ex)
+            {
+                await textChannel.SendMessageAsync(
+                    $"{message.Author.Mention} There was an error retrieving your response.",
+                    messageReference: new MessageReference(message.Id));
+            }
+            // if (response.CompletionStatus == CompletionStatusEnum.Success)
+            // {
+            //     await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}");
+            // }
+            // else
+            // {
+            //     await textChannel.SendMessageAsync($"{message.Author.Mention} There was an error retrieving your response.");
+            // }
+        }
+
+        private async Task<ChatGptResponseModel> CallTextCompletionAndWaitWithTyping(
+            string message,
+            IEnumerable<ChatGptMessageModel> context,
+            SocketTextChannel textChannel)
+        {
+            var responseTask = _gptService.GetTextCompletion(message, context);
+            //#pragma warning disable RCS4014, cs4014
+            Task.Run(async () =>
+            {
+                await responseTask;
+            });
+            while (!responseTask.IsCompleted)
+            {
+                await textChannel.TriggerTypingAsync();
+                await Task.Delay(TimeSpan.FromSeconds(2));
+            }
+            return responseTask.Result;
+        }
+
+        private async Task<IEnumerable<ChatGptMessageModel>> GetReferencedMessages(
+            IMessage message,
+            SocketTextChannel textChannel,
+            ulong discordBotId)
+        {
+            var context = new List<ChatGptMessageModel>();
+            var referenceMessage = message as IMessage;
+            do
+            {
+                if (referenceMessage.Reference?.MessageId.IsSpecified ?? false)
+                {
+                    referenceMessage = await textChannel.GetMessageAsync(referenceMessage.Reference.MessageId.Value);
+                    context.Add(new ChatGptMessageModel()
+                    {
+                        Role = referenceMessage.Author.Id == discordBotId ? "assistant" : "user",
+                        Content = referenceMessage.Content,
+                    });
+                }
+            } while (referenceMessage.Reference?.MessageId.IsSpecified ?? false);
+            context.Reverse();
+            return context;
         }
 
         private async Task OnConnected()
