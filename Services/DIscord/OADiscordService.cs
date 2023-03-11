@@ -2,8 +2,6 @@ using OAHouseChatGpt.Services.ChatGpt;
 using Discord.WebSocket;
 using Discord;
 using OAHouseChatGpt.Services.Configuration;
-using System.Threading;
-using System.Text.RegularExpressions;
 
 namespace OAHouseChatGpt.Services.OADiscord
 {
@@ -71,13 +69,13 @@ namespace OAHouseChatGpt.Services.OADiscord
                     context,
                     textChannel);
                 var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
-                await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}",
+                await textChannel.SendMessageAsync($"{responseText}",
                     messageReference: new MessageReference(message.Id));
             }
             catch (Exception ex)
             {
                 await textChannel.SendMessageAsync(
-                    $"{message.Author.Mention} There was an error retrieving your response.",
+                    $"There was an error retrieving your response.",
                     messageReference: new MessageReference(message.Id));
             }
             // if (response.CompletionStatus == CompletionStatusEnum.Success)
@@ -140,7 +138,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}.  {ex.StackTrace}");
+                Console.WriteLine($"{ex.Message}. {ex.StackTrace}");
             }
         }
     }

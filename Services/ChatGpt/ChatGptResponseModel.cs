@@ -4,17 +4,11 @@ namespace OAHouseChatGpt.Services.ChatGpt;
 
 public class ChatGptResponseModel
 {
-    //[JsonPropertyName("id")]
     public string Id { get; set; }
-    //[JsonPropertyName("object")]
     public string Object { get; set; }
-    //[JsonPropertyName("created")]
     public long Created { get; set; }
-    //[JsonPropertyName("model")]
     public string Model { get; set; }
-    //[JsonPropertyName("choices")]
     public IEnumerable<Choice> Choices { get; set; }
-    //[JsonPropertyName("usage")]
     public Usage Usage { get; set; }
     public CompletionStatusEnum CompletionStatus
     {
@@ -39,19 +33,15 @@ public class ChatGptResponseModel
 
 public class Choice
 {
-    //[JsonPropertyName("index")]
     public int Index { get; set; }
     [JsonPropertyName("finish_reason")]
     public string FinishReason { get; set; }
-    //[JsonPropertyName("message")]
     public Message Message { get; set; }
 }
 
 public class Message
 {
-    //[JsonPropertyName("role")]
     public string Role { get; set; }
-    //[JsonPropertyName("content")]
     public string Content { get; set; }
 }
 

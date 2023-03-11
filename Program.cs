@@ -23,7 +23,6 @@ namespace OAHouseChatGpt
                 return new oAHouseChatGptConfigurationService(
                     config.GetConnectionString("DiscordToken"),
                     config.GetConnectionString("OpenAiApiKey"),
-                    config.GetConnectionString("DiscordBotUsername"),
                     config.GetConnectionString("DiscordBotId"));
             }).As<IOAHouseChatGptConfiguration>();
             var container = builder.Build();

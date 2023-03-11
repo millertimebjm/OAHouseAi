@@ -34,7 +34,9 @@ namespace OAHouseChatGpt.Services.ChatGpt
             return response.Data;
         }
 
-        private ChatGptBodyModel CreateBody(string text, IEnumerable<ChatGptMessageModel> context)
+        private ChatGptBodyModel CreateBody(
+            string text,
+            IEnumerable<ChatGptMessageModel> context)
         {
             var messages = new List<ChatGptMessageModel>();
             messages.AddRange(context ?? new List<ChatGptMessageModel>());

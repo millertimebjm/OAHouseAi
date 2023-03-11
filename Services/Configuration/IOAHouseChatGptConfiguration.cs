@@ -5,7 +5,6 @@ namespace OAHouseChatGpt.Services.Configuration
     {
         public string GetOADiscordToken();
         public string GetOpenAIApiKey();
-        public string GetDiscordBotUsername();
         public string GetDiscordBotId();
     }
 }
