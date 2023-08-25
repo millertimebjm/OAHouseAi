@@ -3,6 +3,7 @@ using OAHouseChatGpt.Services.ChatGpt;
 using OAHouseChatGpt.Services.OADiscord;
 using OAHouseChatGpt.Services.Configuration;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualBasic;
 
 namespace OAHouseChatGpt
 {
@@ -29,6 +30,21 @@ namespace OAHouseChatGpt
 
             using (var scope = container.BeginLifetimeScope())
             {
+                // var chatGptService = scope.Resolve<IChatGpt>();
+                // Console.WriteLine("Send to ChatGpt...");
+                // var line = Console.ReadLine();
+                // while (!string.IsNullOrWhiteSpace(line))
+                // {
+                //     var response = await chatGptService.GetTextCompletion(line);
+                //     if (response.CompletionStatus == CompletionStatusEnum.Success)
+                //     {
+                //         Console.WriteLine(response.Choices.First().Message.Content);
+                //     }
+                //     Console.WriteLine();
+                //     line = Console.ReadLine();
+                // };
+
+
                 var discordService = scope.Resolve<IOaDiscord>();
                 await discordService.Start();
             }
