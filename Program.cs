@@ -4,6 +4,8 @@ using OAHouseChatGpt.Services.OADiscord;
 using OAHouseChatGpt.Services.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
+using Discord;
+using Serilog;
 
 namespace OAHouseChatGpt
 {
@@ -16,6 +18,11 @@ namespace OAHouseChatGpt
                 .AddJsonFile("appsettings.local.json")
                 .Build();
 
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+
             var builder = new ContainerBuilder();
             builder.RegisterType<ChatGptService>().As<IChatGpt>();
             builder.RegisterType<OADiscordService>().As<IOaDiscord>();
@@ -26,6 +33,7 @@ namespace OAHouseChatGpt
                     config.GetConnectionString("OpenAiApiKey"),
                     config.GetConnectionString("DiscordBotId"));
             }).As<IOAHouseChatGptConfiguration>();
+
             var container = builder.Build();
 
             using (var scope = container.BeginLifetimeScope())
@@ -44,7 +52,7 @@ namespace OAHouseChatGpt
                 //     line = Console.ReadLine();
                 // };
 
-
+                Log.Logger.Information("Not started yet.");
                 var discordService = scope.Resolve<IOaDiscord>();
                 await discordService.Start();
             }
