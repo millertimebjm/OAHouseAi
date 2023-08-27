@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
 using Discord;
 using Serilog;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OAHouseChatGpt
 {
@@ -22,40 +23,35 @@ namespace OAHouseChatGpt
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
                 .CreateLogger();
+            Log.Debug("Logging started.");
 
-            var builder = new ContainerBuilder();
-            builder.RegisterType<ChatGptService>().As<IChatGpt>();
-            builder.RegisterType<OADiscordService>().As<IOaDiscord>();
-            builder.Register((c, p) =>
-            {
-                return new oAHouseChatGptConfigurationService(
-                    config.GetConnectionString("DiscordToken"),
-                    config.GetConnectionString("OpenAiApiKey"),
-                    config.GetConnectionString("DiscordBotId"));
-            }).As<IOAHouseChatGptConfiguration>();
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IOAHouseChatGptConfiguration>(c => new oAHouseChatGptConfigurationService(
+                config.GetConnectionString("DiscordToken"),
+                config.GetConnectionString("OpenAiApiKey"),
+                config.GetConnectionString("DiscordBotId")
+            ));
+            serviceCollection.AddTransient<IChatGpt, ChatGptService>();
+            serviceCollection.AddTransient<IOaDiscord, OADiscordService>();
+            serviceCollection.AddHttpClient();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var container = builder.Build();
+            var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
+            await oaDiscordService.Start();
 
-            using (var scope = container.BeginLifetimeScope())
-            {
-                // var chatGptService = scope.Resolve<IChatGpt>();
-                // Console.WriteLine("Send to ChatGpt...");
-                // var line = Console.ReadLine();
-                // while (!string.IsNullOrWhiteSpace(line))
-                // {
-                //     var response = await chatGptService.GetTextCompletion(line);
-                //     if (response.CompletionStatus == CompletionStatusEnum.Success)
-                //     {
-                //         Console.WriteLine(response.Choices.First().Message.Content);
-                //     }
-                //     Console.WriteLine();
-                //     line = Console.ReadLine();
-                // };
-
-                Log.Logger.Information("Not started yet.");
-                var discordService = scope.Resolve<IOaDiscord>();
-                await discordService.Start();
-            }
+            // var chatGptService = serviceProvider.GetRequiredService<IChatGpt>();
+            // Console.WriteLine("Send to ChatGpt...");
+            // var line = Console.ReadLine();
+            // while (!string.IsNullOrWhiteSpace(line))
+            // {
+            //     var response = await chatGptService.GetTextCompletion(line);
+            //     if (response.CompletionStatus == CompletionStatusEnum.Success)
+            //     {
+            //         Console.WriteLine(response.Choices.First().Message.Content);
+            //     }
+            //     Console.WriteLine();
+            //     line = Console.ReadLine();
+            // };
         }
     }
 }

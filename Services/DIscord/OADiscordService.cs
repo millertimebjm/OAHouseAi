@@ -2,6 +2,7 @@ using OAHouseChatGpt.Services.ChatGpt;
 using Discord.WebSocket;
 using Discord;
 using OAHouseChatGpt.Services.Configuration;
+using Serilog;
 
 namespace OAHouseChatGpt.Services.OADiscord
 {
@@ -31,16 +32,16 @@ namespace OAHouseChatGpt.Services.OADiscord
             _client.Connected += OnConnected;
             await _client.LoginAsync(TokenType.Bot, _configurationService.GetOADiscordToken());
             await _client.StartAsync();
-            Console.WriteLine(_client.LoginState);
-            Console.WriteLine(_client.ConnectionState);
+            Log.Debug($"OADiscordService: {_client.LoginState.ToString()}");
+            Log.Debug($"OADiscordService: {_client.ConnectionState.ToString()}");
             _discordUser = await _client.GetUserAsync(_discordBotId);
-            Console.WriteLine("Ready");
+            Log.Debug("OADiscordService: Ready");
             await Task.Delay(-1);
         }
 
         private async Task OnMessageReceived(SocketMessage message)
         {
-            Console.WriteLine(message.Content);
+            Log.Debug($"OADiscordService: Message received: {message.Content}");
             if (!message.MentionedUsers.Any(_ => _.Id == _discordBotId)
                 && !message.MentionedRoles.Any(_ => _.Id == _discordBotId))
                 return;
@@ -48,13 +49,17 @@ namespace OAHouseChatGpt.Services.OADiscord
             var messageWithoutMention =
                 message.Content.Replace(
                     _discordUser.Mention.Replace("!", ""), "");
-            Console.WriteLine(messageWithoutMention);
+            Log.Debug($"OADiscordService: received with mention removed: {messageWithoutMention}");
             var textChannel = (await _client.GetChannelAsync(message.Channel.Id)) as SocketTextChannel;
 
             if (string.IsNullOrWhiteSpace(messageWithoutMention))
             {
+                Log.Debug("OADiscordService: Message without mention is either null or whitespace.");
                 Thread.Sleep(3000);
-                await textChannel.SendMessageAsync($"{message.Author.Mention} Did you accidentally message the Role instead of the Member?");
+                var responseMessage = $"{message.Author.Mention} Did you accidentally message the Role instead of the Member?";
+                Log.Debug($"OADiscordService: Message response sending: {responseMessage}");
+                await textChannel.SendMessageAsync();
+                Log.Debug($"OADiscordService: Response sent.");
                 return;
             }
 
@@ -74,8 +79,12 @@ namespace OAHouseChatGpt.Services.OADiscord
             }
             catch (Exception ex)
             {
+                Log.Error(ex.Message.ToString());
+                Log.Error(ex.StackTrace.ToString());
+                var responseText = $"There was an error retrieving your response.";
+                Log.Debug($"OADiscordService: Sending message (reference ${message.Id}): ${responseText}");
                 await textChannel.SendMessageAsync(
-                    $"There was an error retrieving your response.",
+                    responseText,
                     messageReference: new MessageReference(message.Id));
             }
             // if (response.CompletionStatus == CompletionStatusEnum.Success)
@@ -134,11 +143,11 @@ namespace OAHouseChatGpt.Services.OADiscord
         {
             try
             {
-                Console.WriteLine("Connected");
+                Log.Debug("OADiscordService: Connected");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}. {ex.StackTrace}");
+                Log.Debug($"OADiscordService: {ex.Message}. {ex.StackTrace}");
             }
         }
     }

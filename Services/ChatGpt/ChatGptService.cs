@@ -1,37 +1,69 @@
 using System.Collections;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OAHouseChatGpt.Services.Configuration;
 using RestSharp;
+using Serilog;
 
 namespace OAHouseChatGpt.Services.ChatGpt
 {
     public class ChatGptService : IChatGpt
     {
+        private const string BaseUrl = "https://api.openai.com";
+        private const string Resource = "/v1/chat/completions";
         private readonly string _openAIApiKey;
-        public ChatGptService(IOAHouseChatGptConfiguration configurationService)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public ChatGptService(
+            IOAHouseChatGptConfiguration configurationService,
+            IHttpClientFactory httpClientFactory)
         {
             _openAIApiKey = configurationService.GetOpenAIApiKey();
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<ChatGptResponseModel> GetTextCompletion(
             string text,
             IEnumerable<ChatGptMessageModel> context = null)
         {
+            Log.Debug($"ChatGPTService: Text completion text: {text}");
             if (string.IsNullOrWhiteSpace(_openAIApiKey)) return null;
 
-            var client = new RestClient("https://api.openai.com");
-            var request = new RestRequest("/v1/chat/completions", Method.Post);
-            request.AddHeader("Authorization", $"Bearer {_openAIApiKey}");
-            request.AddHeader("Content-Type", "application/json");
-            request.AddJsonBody(CreateBody(text, context));
-            var response = await client.ExecuteAsync<ChatGptResponseModel>(request);
-            // var options = new JsonSerializerOptions
-            // {
-            //     PropertyNameCaseInsensitive = true
-            // };
-            // var model = JsonSerializer.Deserialize<ChatGptResponseModel>(response.Content, options);
-            return response.Data;
+            return await HttpClient_SendChatGptRequest(text, context);
+        }
+
+        // private async Task<ChatGptResponseModel> RestClient_SendChatGPTRequest(string text, IEnumerable<ChatGptMessageModel> context)
+        // {
+        //     var client = new RestClient(BaseUrl);
+        //     var request = new RestRequest(Resource, Method.Post);
+        //     request.AddHeader("Authorization", $"Bearer {_openAIApiKey}");
+        //     request.AddHeader("Content-Type", MediaTypeNames.Application.Json);
+        //     request.AddJsonBody(CreateBody(text, context));
+        //     var response = await client.ExecuteAsync<ChatGptResponseModel>(request);
+        //     return response.Data;
+        // }
+
+        private async Task<ChatGptResponseModel> HttpClient_SendChatGptRequest(string text, IEnumerable<ChatGptMessageModel> context)
+        {
+            Log.Debug("ChatGptService: Sending HttpClient request...");
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.BaseAddress = new Uri(BaseUrl);
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAIApiKey);
+            var httpResponseMessage = await httpClient.PostAsJsonAsync(Resource, CreateBody(text, context));
+            if (!httpResponseMessage.IsSuccessStatusCode)
+            {
+                Log.Error($"HttpClient error: Status code: {httpResponseMessage.StatusCode}");
+                Log.Error($"HttpClient error: Reason phrase: {httpResponseMessage.ReasonPhrase}");
+            }
+            else
+            {
+                Log.Debug($"ChatGptService: HttpClient response data: {await httpResponseMessage.Content.ReadAsStringAsync()}");
+            }
+            Log.Debug("ChatGptService: HttpClient request complete.");
+            return await httpResponseMessage.Content.ReadFromJsonAsync<ChatGptResponseModel>();
         }
 
         private ChatGptBodyModel CreateBody(
