@@ -1,10 +1,7 @@
-﻿using Autofac;
-using OAHouseChatGpt.Services.ChatGpt;
+﻿using OAHouseChatGpt.Services.ChatGpt;
 using OAHouseChatGpt.Services.OADiscord;
 using OAHouseChatGpt.Services.Configuration;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualBasic;
-using Discord;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +14,7 @@ namespace OAHouseChatGpt
             var config = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.local.json")
+                .AddEnvironmentVariables()
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
@@ -27,9 +25,9 @@ namespace OAHouseChatGpt
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IOAHouseChatGptConfiguration>(c => new oAHouseChatGptConfigurationService(
-                config.GetConnectionString("DiscordToken"),
-                config.GetConnectionString("OpenAiApiKey"),
-                config.GetConnectionString("DiscordBotId")
+                config.GetValue<string>("DiscordToken"),
+                config.GetValue<string>("OpenAiApiKey"),
+                config.GetValue<string>("DiscordBotId")
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
             serviceCollection.AddTransient<IOaDiscord, OADiscordService>();
@@ -39,6 +37,7 @@ namespace OAHouseChatGpt
             var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
             await oaDiscordService.Start();
 
+            #region For testing purposes...
             // var chatGptService = serviceProvider.GetRequiredService<IChatGpt>();
             // Console.WriteLine("Send to ChatGpt...");
             // var line = Console.ReadLine();
@@ -52,6 +51,7 @@ namespace OAHouseChatGpt
             //     Console.WriteLine();
             //     line = Console.ReadLine();
             // };
+            #endregion
         }
     }
 }

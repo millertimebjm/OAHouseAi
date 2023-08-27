@@ -1,12 +1,6 @@
-using System.Collections;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using OAHouseChatGpt.Services.Configuration;
-using RestSharp;
 using Serilog;
 
 namespace OAHouseChatGpt.Services.ChatGpt

@@ -32,7 +32,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             _client.Connected += OnConnected;
             await _client.LoginAsync(TokenType.Bot, _configurationService.GetOADiscordToken());
             await _client.StartAsync();
-            Log.Debug($"OADiscordService: {_client.LoginState.ToString()}");
+            Log.Debug($"OADiscordService: {_client.LoginState}");
             Log.Debug($"OADiscordService: {_client.ConnectionState.ToString()}");
             _discordUser = await _client.GetUserAsync(_discordBotId);
             Log.Debug("OADiscordService: Ready");
