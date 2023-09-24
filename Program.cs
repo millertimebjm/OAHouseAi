@@ -37,7 +37,7 @@ namespace OAHouseChatGpt
             var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
             await oaDiscordService.Start();
 
-            #region For testing purposes...
+            // #region For testing purposes...
             // var chatGptService = serviceProvider.GetRequiredService<IChatGpt>();
             // Console.WriteLine("Send to ChatGpt...");
             // var line = Console.ReadLine();
@@ -51,7 +51,7 @@ namespace OAHouseChatGpt
             //     Console.WriteLine();
             //     line = Console.ReadLine();
             // };
-            #endregion
+            // #endregion
         }
     }
 }
