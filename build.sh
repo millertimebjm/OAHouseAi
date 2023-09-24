@@ -1,5 +1,8 @@
 #!/bin/bash
 
-sh build_1_delete_docker_artifacts.sh
+#export keys=("DiscordToken" "OpenAiApiKey" "DiscordBotId")
+#export values=("" "" "")
 
-sh build_2_publish_docker.sh
+bash build_1_delete_docker_artifacts.sh
+
+bash build_2_publish_docker.sh

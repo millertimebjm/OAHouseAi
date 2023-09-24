@@ -4,7 +4,7 @@ IMAGE_NAME="oahousechatgpt"
 
 args=""
 for ((i=0; i<${#keys[@]}; i++)); do
-  args+=" -e ${keys[$i]}=${values[$i]}"
+  args+=" -e \"${keys[$i]}\"=\"${values[$i]}\""
 done
 
 dotnet build
