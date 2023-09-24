@@ -11,7 +11,7 @@ dotnet build
 
 
 dotnet publish --os linux --arch x64 /t:PublishContainer -c Release
-docker run -d -p 7080:7080 --restart=always --name $IMAGE_NAME $IMAGE_NAME:1.0.0 $args
+docker run -d --restart=always --name $IMAGE_NAME $IMAGE_NAME:1.0.0 $args
 rm -rf /tmp/Containers
 
 
