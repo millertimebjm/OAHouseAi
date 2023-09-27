@@ -74,8 +74,9 @@ namespace OAHouseChatGpt.Services.OADiscord
                     context,
                     textChannel);
                 var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
-                await textChannel.SendMessageAsync($"{responseText}",
-                    messageReference: new MessageReference(message.Id));
+                // await textChannel.SendMessageAsync($"{responseText}",
+                //     messageReference: new MessageReference(message.Id));
+                await SendLongMessage(textChannel, new MessageReference(message.Id), responseText);
             }
             catch (Exception ex)
             {
@@ -95,6 +96,21 @@ namespace OAHouseChatGpt.Services.OADiscord
             // {
             //     await textChannel.SendMessageAsync($"{message.Author.Mention} There was an error retrieving your response.");
             // }
+        }
+
+        private async Task SendLongMessage(
+            SocketTextChannel textChannel,
+            MessageReference messageReference,
+            string messageContent)
+        {
+            const int MaxMessageLength = 2000;
+            int messageCount = (int)Math.Ceiling((double)messageContent.Length / MaxMessageLength);
+
+            for (int i = 0; i < messageCount; i++)
+            {
+                string chunk = messageContent.Substring(i * MaxMessageLength, Math.Min(MaxMessageLength, messageContent.Length - i * MaxMessageLength));
+                await textChannel.SendMessageAsync(chunk);
+            }
         }
 
         private async Task<ChatGptResponseModel> CallTextCompletionAndWaitWithTyping(
