@@ -8,19 +8,13 @@ for key in "${!env_array[@]}"; do
   args+="-e ${key}=${env_array[$key]} "
 done
 
-for key in "${!env_array[@]}"; do
-  echo "Key: $key, Value: ${env_array[$key]}"
-done
-
-echo "args: ${args[@]}"
+echo "docker envs: $args"
 
 dotnet build
 
-
 dotnet publish --os linux --arch x64 /t:PublishContainer -c Release
-docker run -d --restart=always --name $IMAGE_NAME $IMAGE_NAME:1.0.0 ${args[@]}
+docker run -d --restart=always --name $IMAGE_NAME $args $IMAGE_NAME:1.0.0
 rm -rf /tmp/Containers
-
 
 
 # Check if there are any dangling images

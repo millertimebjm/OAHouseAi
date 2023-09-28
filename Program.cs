@@ -13,7 +13,7 @@ namespace OAHouseChatGpt
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.local.json")
+                .AddJsonFile("appsettings.local.json", optional: true)
                 .AddEnvironmentVariables()
                 .Build();
 
