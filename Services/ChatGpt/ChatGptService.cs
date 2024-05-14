@@ -80,8 +80,7 @@ namespace OAHouseChatGpt.Services.ChatGpt
             Log.Debug("ChatGptService: HttpClient request complete.");
             var data = await httpResponseMessage.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<ChatGptResponseModel>(
-                data,
-                JsonSerializerConfigurator.GetJsonSerializerOptions());
+                data);
         }
 
         private ChatGptBodyModel CreateBody(
