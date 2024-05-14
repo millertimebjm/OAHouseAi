@@ -1,10 +1,8 @@
 # appsettings.local.json
-
+# local.settings.json
 `
 {
-    "DiscordToken": "",
-    "OpenAiApiKey": "",
-    "DiscordBotId": ""
+    "AppConfigConnectionString": ""
 }
 `
 

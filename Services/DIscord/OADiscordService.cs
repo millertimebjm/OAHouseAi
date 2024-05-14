@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Discord;
 using OAHouseChatGpt.Services.Configuration;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OAHouseChatGpt.Services.OADiscord
 {
@@ -25,6 +26,8 @@ namespace OAHouseChatGpt.Services.OADiscord
             _discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
         }
 
+        [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
+        [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         public async Task Start()
         {
             _client.MessageReceived += OnMessageReceived;
@@ -39,6 +42,8 @@ namespace OAHouseChatGpt.Services.OADiscord
             await Task.Delay(-1);
         }
 
+        [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
+        [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         private async Task OnMessageReceived(SocketMessage message)
         {
             Log.Debug($"OADiscordService: Message received: {message.Content}");
@@ -113,6 +118,8 @@ namespace OAHouseChatGpt.Services.OADiscord
             }
         }
 
+        [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
+        [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         private async Task<ChatGptResponseModel> CallTextCompletionAndWaitWithTyping(
             string message,
             IEnumerable<ChatGptMessageModel> context,
@@ -120,10 +127,12 @@ namespace OAHouseChatGpt.Services.OADiscord
         {
             var responseTask = _gptService.GetTextCompletion(message, context);
             //#pragma warning disable RCS4014, cs4014
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Task.Run(async () =>
             {
                 await responseTask;
             });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             while (!responseTask.IsCompleted)
             {
                 await textChannel.TriggerTypingAsync();
