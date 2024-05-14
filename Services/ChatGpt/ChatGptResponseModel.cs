@@ -21,7 +21,7 @@ public class ChatGptResponseModel
     {
         get
         {
-            if (!Choices.Any())
+            if (Choices == null || !Choices.Any())
             {
                 return CompletionStatusEnum.Failed;
             }

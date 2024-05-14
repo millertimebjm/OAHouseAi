@@ -164,7 +164,9 @@ namespace OAHouseChatGpt.Services.OADiscord
             return context;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async Task OnConnected()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             try
             {

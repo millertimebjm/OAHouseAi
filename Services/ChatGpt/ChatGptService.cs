@@ -1,7 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
+using Azure.Core;
 using OAHouseChatGpt.Services.Configuration;
 using Serilog;
 
@@ -50,20 +53,25 @@ namespace OAHouseChatGpt.Services.ChatGpt
         private async Task<ChatGptResponseModel> HttpClient_SendChatGptRequest(string text, IEnumerable<ChatGptMessageModel> context)
         {
             Log.Debug("ChatGptService: Sending HttpClient request...");
-            var httpClient = _httpClientFactory.CreateClient();
-            httpClient.BaseAddress = new Uri(_baseUrl);
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAIApiKey);
-            var postData = JsonSerializer.Serialize(
-                CreateBody(text, context),
-                JsonSerializerConfigurator.GetJsonSerializerOptions());
+            var postData = JsonSerializer.Serialize(CreateBody(text, context));
+            var request = new HttpRequestMessage(HttpMethod.Post, _baseUrl + _resource)
+            {
+                Content = new StringContent(
+                postData,
+                Encoding.UTF8,
+                "application/json")
+            };
             Log.Debug("GetTextCompletion: SendChatGptRequest post data: {postData}", postData);
-            var httpResponseMessage = await httpClient.PostAsync(
-                _resource, 
-                new StringContent(postData));
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAIApiKey);
+            var httpResponseMessage = await httpClient.SendAsync(request);
+            // var httpResponseMessage = await httpClient.PostAsync(
+            //     _resource,
+            //     new StringContent(postData, Encoding.UTF8, "application/json"));
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
-                Log.Error($"HttpClient error: Status code: {httpResponseMessage.StatusCode}");
-                Log.Error($"HttpClient error: Reason phrase: {httpResponseMessage.ReasonPhrase}");
+                Log.Error($"HttpClient Request error: {request}");
+                Log.Error($"HttpClient Response error: {httpResponseMessage}");
             }
             else
             {
@@ -89,7 +97,7 @@ namespace OAHouseChatGpt.Services.ChatGpt
             });
             var body = new ChatGptBodyModel()
             {
-                Model = "gpt-3.5-turbo-0613",
+                Model = "gpt-3.5-turbo",
                 Messages = messages,
             };
             return body;
