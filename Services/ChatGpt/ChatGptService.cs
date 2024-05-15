@@ -49,17 +49,6 @@ namespace OAHouseChatGpt.Services.ChatGpt
             return await HttpClient_SendChatGptRequest(text, context);
         }
 
-        // private async Task<ChatGptResponseModel> RestClient_SendChatGPTRequest(string text, IEnumerable<ChatGptMessageModel> context)
-        // {
-        //     var client = new RestClient(BaseUrl);
-        //     var request = new RestRequest(Resource, Method.Post);
-        //     request.AddHeader("Authorization", $"Bearer {_openAIApiKey}");
-        //     request.AddHeader("Content-Type", MediaTypeNames.Application.Json);
-        //     request.AddJsonBody(CreateBody(text, context));
-        //     var response = await client.ExecuteAsync<ChatGptResponseModel>(request);
-        //     return response.Data;
-        // }
-
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         private async Task<ChatGptResponseModel> HttpClient_SendChatGptRequest(string text, IEnumerable<ChatGptMessageModel> context)
@@ -86,16 +75,18 @@ namespace OAHouseChatGpt.Services.ChatGpt
             {
                 Log.Error($"HttpClient Request error: {request}");
                 Log.Error($"HttpClient Response error: {httpResponseMessage}");
+                return null;
             }
-            else
-            {
-                Log.Debug($"ChatGptService: HttpClient response data: {await httpResponseMessage.Content.ReadAsStringAsync()}");
-            }
-            Log.Debug("ChatGptService: HttpClient request complete.");
             var data = await httpResponseMessage.Content.ReadAsStringAsync();
+            Log.Debug("ChatGptService: HttpClient response data: {s}", data);
+            
             return JsonSerializer.Deserialize<ChatGptResponseModel>(
                 data,
-                _chatGptResponseModelJsonSerializerContext.Value);
+                //_chatGptResponseModelJsonSerializerContext.Value);
+                new JsonSerializerOptions()
+                {
+                    TypeInfoResolver = new ChatGptResponseModelJsonSerializerContext()
+                });
         }
 
         private ChatGptBodyModel CreateBody(

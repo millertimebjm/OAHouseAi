@@ -55,27 +55,29 @@ namespace OAHouseChatGpt
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            // #region PROD
-            // var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
-            // await oaDiscordService.Start();
-            // #endregion PROD
+            #region PROD
+            var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
+            await oaDiscordService.Start();
+            #endregion PROD
 
-            #region For testing purposes...
+            // #region For testing purposes...
             
-            var chatGptService = serviceProvider.GetRequiredService<IChatGpt>();
-            Console.WriteLine("Send to ChatGpt...");
-            var line = Console.ReadLine();
-            while (!string.IsNullOrWhiteSpace(line))
-            {
-                var response = await chatGptService.GetTextCompletion(line);
-                if (response.CompletionStatus == CompletionStatusEnum.Success)
-                {
-                    Console.WriteLine(response.Choices.First().Message.Content);
-                }
-                Console.WriteLine();
-                line = Console.ReadLine();
-            };
-            #endregion
+            // var chatGptService = serviceProvider.GetRequiredService<IChatGpt>();
+            // Log.Debug("Send to ChatGpt...");
+            // Console.WriteLine("Send to ChatGpt...");
+            // var line = Console.ReadLine();
+            // while (!string.IsNullOrWhiteSpace(line))
+            // {
+            //     var response = await chatGptService.GetTextCompletion(line);
+            //     if (response.CompletionStatus == CompletionStatusEnum.Success)
+            //     {
+            //         Console.WriteLine(response.Choices.First().Message.Content);
+            //     }
+            //     Log.Debug("Send to ChatGpt...");
+            //     Console.WriteLine("Send to ChatGpt...");
+            //     line = Console.ReadLine();
+            // };
+            // #endregion
         }
     }
 }

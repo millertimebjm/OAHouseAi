@@ -4,19 +4,18 @@ namespace OAHouseChatGpt.Services.ChatGpt;
 
 public class ChatGptResponseModel
 {
-    [JsonPropertyName(nameof(Id))]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
-    [JsonPropertyName(nameof(Object))]
+    [JsonPropertyName("object")]
     public string Object { get; set; }
-    [JsonPropertyName(nameof(Created))]
+    [JsonPropertyName("created")]
     public long Created { get; set; }
-    [JsonPropertyName(nameof(Model))]
+    [JsonPropertyName("model")]
     public string Model { get; set; }
-    [JsonPropertyName(nameof(Choices))]
+    [JsonPropertyName("choices")]
     public IEnumerable<Choice> Choices { get; set; }
-    [JsonPropertyName(nameof(Usage))]
+    [JsonPropertyName("usage")]
     public Usage Usage { get; set; }
-    [JsonPropertyName(nameof(CompletionStatus))]
     public CompletionStatusEnum CompletionStatus
     {
         get
@@ -46,11 +45,11 @@ public partial class ChatGptResponseModelJsonSerializerContext : JsonSerializerC
 
 public class Choice
 {
-    [JsonPropertyName(nameof(Index))]
+    [JsonPropertyName("index")]
     public int Index { get; set; }
     [JsonPropertyName("finish_reason")]
     public string FinishReason { get; set; }
-    [JsonPropertyName(nameof(Message))]
+    [JsonPropertyName("message")]
     public Message Message { get; set; }
 }
 
@@ -62,9 +61,9 @@ public partial class ChoiceJsonSerializerContext : JsonSerializerContext
 
 public class Message
 {
-    [JsonPropertyName(nameof(Role))]
+    [JsonPropertyName("role")]
     public string Role { get; set; }
-    [JsonPropertyName(nameof(Content))]
+    [JsonPropertyName("content")]
     public string Content { get; set; }
 }
 

@@ -4,6 +4,7 @@ using Discord;
 using OAHouseChatGpt.Services.Configuration;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace OAHouseChatGpt.Services.OADiscord
 {
@@ -14,6 +15,7 @@ namespace OAHouseChatGpt.Services.OADiscord
         private readonly IOAHouseChatGptConfiguration _configurationService;
         private IUser _discordUser;
         private readonly ulong _discordBotId;
+        private readonly string _discordToken;
 
         public OADiscordService(
             IChatGpt gptService,
@@ -23,7 +25,10 @@ namespace OAHouseChatGpt.Services.OADiscord
             _client = new DiscordSocketClient(config);
             _gptService = gptService;
             _configurationService = configurationService;
+            Log.Debug("OADiscordService: DiscordBotId: {s}", _configurationService.GetDiscordBotId());
             _discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
+            Log.Debug("OADiscordService: DiscordToken: {s}", _configurationService.GetOADiscordToken());
+            _discordToken = _configurationService.GetOADiscordToken();
         }
 
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
@@ -33,10 +38,10 @@ namespace OAHouseChatGpt.Services.OADiscord
             _client.MessageReceived += OnMessageReceived;
 
             _client.Connected += OnConnected;
-            await _client.LoginAsync(TokenType.Bot, _configurationService.GetOADiscordToken());
+            await _client.LoginAsync(TokenType.Bot, _discordToken);
             await _client.StartAsync();
             Log.Debug($"OADiscordService: {_client.LoginState}");
-            Log.Debug($"OADiscordService: {_client.ConnectionState.ToString()}");
+            Log.Debug($"OADiscordService: {_client.ConnectionState}");
             _discordUser = await _client.GetUserAsync(_discordBotId);
             Log.Debug("OADiscordService: Ready");
             await Task.Delay(-1);
@@ -79,8 +84,6 @@ namespace OAHouseChatGpt.Services.OADiscord
                     context,
                     textChannel);
                 var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
-                // await textChannel.SendMessageAsync($"{responseText}",
-                //     messageReference: new MessageReference(message.Id));
                 await SendLongMessage(textChannel, new MessageReference(message.Id), responseText);
             }
             catch (Exception ex)
@@ -93,14 +96,6 @@ namespace OAHouseChatGpt.Services.OADiscord
                     responseText,
                     messageReference: new MessageReference(message.Id));
             }
-            // if (response.CompletionStatus == CompletionStatusEnum.Success)
-            // {
-            //     await textChannel.SendMessageAsync($"{message.Author.Mention} {responseText}");
-            // }
-            // else
-            // {
-            //     await textChannel.SendMessageAsync($"{message.Author.Mention} There was an error retrieving your response.");
-            // }
         }
 
         private async Task SendLongMessage(
@@ -114,7 +109,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             for (int i = 0; i < messageCount; i++)
             {
                 string chunk = messageContent.Substring(i * MaxMessageLength, Math.Min(MaxMessageLength, messageContent.Length - i * MaxMessageLength));
-                await textChannel.SendMessageAsync(chunk);
+                await textChannel.SendMessageAsync(chunk, messageReference: messageReference);
             }
         }
 
@@ -126,19 +121,12 @@ namespace OAHouseChatGpt.Services.OADiscord
             SocketTextChannel textChannel)
         {
             var responseTask = _gptService.GetTextCompletion(message, context);
-            //#pragma warning disable RCS4014, cs4014
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Run(async () =>
-            {
-                await responseTask;
-            });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             while (!responseTask.IsCompleted)
             {
                 await textChannel.TriggerTypingAsync();
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.WhenAny(responseTask, Task.Delay(TimeSpan.FromSeconds(2)));
             }
-            return responseTask.Result;
+            return await responseTask;
         }
 
         private async Task<IEnumerable<ChatGptMessageModel>> GetReferencedMessages(
