@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using OAHouseChatGpt.Services.ChatGpt;
 
 namespace OAHouseChatGpt.Services.OADiscord
 {

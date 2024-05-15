@@ -9,3 +9,9 @@ public class ChatGptBodyModel
     [JsonPropertyName("messages")]
     public IEnumerable<ChatGptMessageModel> Messages { get; set; }
 }
+
+[JsonSerializable(typeof(ChatGptBodyModel))]
+public partial class ChatGptBodyModelJsonSerializerContext : JsonSerializerContext
+{
+
+}

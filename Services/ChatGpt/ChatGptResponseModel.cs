@@ -38,6 +38,12 @@ public class ChatGptResponseModel
     }
 }
 
+[JsonSerializable(typeof(ChatGptResponseModel))]
+public partial class ChatGptResponseModelJsonSerializerContext : JsonSerializerContext
+{
+
+}
+
 public class Choice
 {
     [JsonPropertyName(nameof(Index))]
@@ -48,12 +54,24 @@ public class Choice
     public Message Message { get; set; }
 }
 
+[JsonSerializable(typeof(Choice))]
+public partial class ChoiceJsonSerializerContext : JsonSerializerContext
+{
+
+}
+
 public class Message
 {
     [JsonPropertyName(nameof(Role))]
     public string Role { get; set; }
     [JsonPropertyName(nameof(Content))]
     public string Content { get; set; }
+}
+
+[JsonSerializable(typeof(Message))]
+public partial class MessageJsonSerializerContext : JsonSerializerContext
+{
+
 }
 
 public class Usage
@@ -66,6 +84,12 @@ public class Usage
     public int TotalTokens { get; set; }
 }
 
+[JsonSerializable(typeof(Usage))]
+public partial class UsageJsonSerializerContext : JsonSerializerContext
+{
+
+}
+
 public enum CompletionStatusEnum
 {
     Unknown,
@@ -73,3 +97,4 @@ public enum CompletionStatusEnum
     StoppedEarly,
     Success,
 }
+

@@ -16,6 +16,8 @@ namespace OAHouseChatGpt.Services.ChatGpt
         private const string _resource = "/v1/chat/completions";
         private readonly string _openAIApiKey;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Lazy<JsonSerializerOptions> _chatGptBodyModelJsonSerializerOptions;
+        private readonly Lazy<JsonSerializerOptions> _chatGptResponseModelJsonSerializerContext;
         public ChatGptService(
             IOAHouseChatGptConfiguration configurationService,
             IHttpClientFactory httpClientFactory)
@@ -23,6 +25,16 @@ namespace OAHouseChatGpt.Services.ChatGpt
             _openAIApiKey = configurationService.GetOpenAIApiKey();
             Log.Debug("ChatGPTService: OpenAI Api Key: {_openAIApiKey}", _openAIApiKey);
             _httpClientFactory = httpClientFactory;
+            _chatGptBodyModelJsonSerializerOptions = new Lazy<JsonSerializerOptions>(() => 
+                new JsonSerializerOptions()
+                {
+                    TypeInfoResolver = new ChatGptBodyModelJsonSerializerContext(),
+                });
+            _chatGptResponseModelJsonSerializerContext = new Lazy<JsonSerializerOptions>(() =>
+                new JsonSerializerOptions()
+                {
+                    TypeInfoResolver = new ChatGptResponseModelJsonSerializerContext()
+                });
         }
 
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
@@ -53,13 +65,15 @@ namespace OAHouseChatGpt.Services.ChatGpt
         private async Task<ChatGptResponseModel> HttpClient_SendChatGptRequest(string text, IEnumerable<ChatGptMessageModel> context)
         {
             Log.Debug("ChatGptService: Sending HttpClient request...");
-            var postData = JsonSerializer.Serialize(CreateBody(text, context));
+            var postData = JsonSerializer.Serialize(
+                CreateBody(text, context),
+                _chatGptBodyModelJsonSerializerOptions.Value);
             var request = new HttpRequestMessage(HttpMethod.Post, _baseUrl + _resource)
             {
                 Content = new StringContent(
-                postData,
-                Encoding.UTF8,
-                "application/json")
+                    postData,
+                    Encoding.UTF8,
+                    "application/json")
             };
             Log.Debug("GetTextCompletion: SendChatGptRequest post data: {postData}", postData);
             var httpClient = _httpClientFactory.CreateClient();
@@ -80,7 +94,8 @@ namespace OAHouseChatGpt.Services.ChatGpt
             Log.Debug("ChatGptService: HttpClient request complete.");
             var data = await httpResponseMessage.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<ChatGptResponseModel>(
-                data);
+                data,
+                _chatGptResponseModelJsonSerializerContext.Value);
         }
 
         private ChatGptBodyModel CreateBody(
