@@ -17,8 +17,9 @@ namespace OAHouseChatGpt
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
+                //.WriteTo.MongoDB("mongodb://media.bltmiller.com:27017/OaHouseAi", "DiscordLog")
                 .CreateLogger();
-            Log.Debug("Logging started.");
+            Log.Debug("Local-only Logging started.");
 
             const string _applicationNameConfigurationService = "OaHouseAi";
             const string _appConfigEnvironmentVariableName = "AppConfigConnectionString";
@@ -44,6 +45,15 @@ namespace OAHouseChatGpt
                 .AddAzureAppConfiguration(appConfigConnectionString)
                 .Build();
 
+            await Log.CloseAndFlushAsync();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.MongoDB(
+                    config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"), 
+                    config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingCollectionName"))
+                .CreateLogger();
+
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IOAHouseChatGptConfiguration>(c => new oAHouseChatGptConfigurationService(
                 config.GetValue<string>($"{_applicationNameConfigurationService}:DiscordToken"),
@@ -61,7 +71,6 @@ namespace OAHouseChatGpt
             #endregion PROD
 
             // #region For testing purposes...
-            
             // var chatGptService = serviceProvider.GetRequiredService<IChatGpt>();
             // Log.Debug("Send to ChatGpt...");
             // Console.WriteLine("Send to ChatGpt...");
@@ -81,4 +90,3 @@ namespace OAHouseChatGpt
         }
     }
 }
-
