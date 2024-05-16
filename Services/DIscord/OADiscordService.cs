@@ -51,7 +51,7 @@ namespace OAHouseChatGpt.Services.OADiscord
         [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         private async Task OnMessageReceived(SocketMessage message)
         {
-            Log.Debug($"OADiscordService: Message received: {message.Content}");
+            Log.Debug($"OADiscordService: Message received from '{message.Author.Username}': {message.Content}");
             if (!message.MentionedUsers.Any(_ => _.Id == _discordBotId)
                 && !message.MentionedRoles.Any(_ => _.Id == _discordBotId))
                 return;

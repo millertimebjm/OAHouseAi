@@ -17,7 +17,6 @@ namespace OAHouseChatGpt
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
-                //.WriteTo.MongoDB("mongodb://media.bltmiller.com:27017/OaHouseAi", "DiscordLog")
                 .CreateLogger();
             Log.Debug("Local-only Logging started.");
 
@@ -45,6 +44,9 @@ namespace OAHouseChatGpt
                 .AddAzureAppConfiguration(appConfigConnectionString)
                 .Build();
 
+            Log.Debug("Program.cs LoggingDbServer: {s}", config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"));
+            Log.Debug("Program.cs LoggingCollectionName {s}", config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingCollectionName"));
+
             await Log.CloseAndFlushAsync();
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -53,6 +55,8 @@ namespace OAHouseChatGpt
                     config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"), 
                     config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingCollectionName"))
                 .CreateLogger();
+
+            
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<IOAHouseChatGptConfiguration>(c => new oAHouseChatGptConfigurationService(
