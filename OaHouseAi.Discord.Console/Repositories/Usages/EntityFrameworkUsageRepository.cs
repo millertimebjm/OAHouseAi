@@ -9,14 +9,15 @@ public class EntityFrameworkUsageRepository : IUsageRepository
 {
     private readonly IOAHouseChatGptConfiguration _config;
     private readonly Lazy<OaHouseAiDbContext> _dbContext;
-    public EntityFrameworkUsageRepository(IOAHouseChatGptConfiguration config)
+    private readonly IOaHouseAiDbContextFactory _oaHouseAiDbContextFactory;
+    public EntityFrameworkUsageRepository(
+        IOAHouseChatGptConfiguration config,
+        IOaHouseAiDbContextFactory oaHouseAiDbContextFactory)
     {
         _config = config;
-        
-        _dbContext = new Lazy<OaHouseAiDbContext>(() => {
-            var client = new MongoClient(_config.GetDatabaseConnectionString());
-            return OaHouseAiDbContext.Create(client.GetDatabase("OaHouseAi"));
-        });
+        _oaHouseAiDbContextFactory = oaHouseAiDbContextFactory;
+
+        _dbContext = new Lazy<OaHouseAiDbContext>(_oaHouseAiDbContextFactory.GetDbContext(config.DbContextType));
     }
 
     public async Task Insert(UsageModel model)
