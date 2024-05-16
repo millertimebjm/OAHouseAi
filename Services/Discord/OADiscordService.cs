@@ -4,6 +4,8 @@ using Discord;
 using OAHouseChatGpt.Services.Configuration;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
+using OAHouseChatGpt.Models.Usages;
+using OAHouseChatGpt.Repositories.Usages;
 using System.Text.Json;
 
 namespace OAHouseChatGpt.Services.OADiscord
@@ -16,10 +18,12 @@ namespace OAHouseChatGpt.Services.OADiscord
         private IUser _discordUser;
         private readonly ulong _discordBotId;
         private readonly string _discordToken;
+        private readonly IUsageRepository _usageRepository;
 
         public OADiscordService(
             IChatGpt gptService,
-            IOAHouseChatGptConfiguration configurationService)
+            IOAHouseChatGptConfiguration configurationService,
+            IUsageRepository usageRepository)
         {
             var config = new DiscordSocketConfig() { MessageCacheSize = 100 };
             _client = new DiscordSocketClient(config);
@@ -29,6 +33,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             _discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
             Log.Debug("OADiscordService: DiscordToken: {s}", _configurationService.GetOADiscordToken());
             _discordToken = _configurationService.GetOADiscordToken();
+            _usageRepository = usageRepository;
         }
 
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
@@ -83,6 +88,23 @@ namespace OAHouseChatGpt.Services.OADiscord
                     messageWithoutMention,
                     context,
                     textChannel);
+
+                var usage = new UsageModel()
+                { 
+                    ModelName = response.Model, 
+                    Username = message.Author.Username, 
+                    TotalTokens = response.Usage.TotalTokens, 
+                    UtcTimestamp = DateTime.UtcNow
+                };
+                await _usageRepository.Insert(usage);
+
+                Log.Debug(
+                    "OADiscordService: Usage report filed: {s}", 
+                    JsonSerializer.Serialize(usage, new JsonSerializerOptions()
+                    {
+                        TypeInfoResolver = new UsageModelJsonSerializerContext(),
+                    }));
+
                 var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
                 await SendLongMessage(textChannel, new MessageReference(message.Id), responseText);
             }
