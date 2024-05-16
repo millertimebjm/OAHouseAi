@@ -29,10 +29,10 @@ namespace OAHouseChatGpt.Services.OADiscord
             _client = new DiscordSocketClient(config);
             _gptService = gptService;
             _configurationService = configurationService;
-            Log.Debug("OADiscordService: DiscordBotId: {s}", _configurationService.GetDiscordBotId());
-            _discordBotId = ulong.Parse(_configurationService.GetDiscordBotId());
-            Log.Debug("OADiscordService: DiscordToken: {s}", _configurationService.GetOADiscordToken());
-            _discordToken = _configurationService.GetOADiscordToken();
+            Log.Debug("OADiscordService: DiscordBotId: {s}", _configurationService.DiscordBotId);
+            _discordBotId = ulong.Parse(_configurationService.DiscordBotId);
+            Log.Debug("OADiscordService: DiscordToken: {s}", _configurationService.OADiscordToken);
+            _discordToken = _configurationService.OADiscordToken;
             _usageRepository = usageRepository;
         }
 
@@ -90,16 +90,16 @@ namespace OAHouseChatGpt.Services.OADiscord
                     textChannel);
 
                 var usage = new UsageModel()
-                { 
-                    ModelName = response.Model, 
-                    Username = message.Author.Username, 
-                    TotalTokens = response.Usage.TotalTokens, 
+                {
+                    ModelName = response.Model,
+                    Username = message.Author.Username,
+                    TotalTokens = response.Usage.TotalTokens,
                     UtcTimestamp = DateTime.UtcNow
                 };
                 await _usageRepository.Insert(usage);
 
                 Log.Debug(
-                    "OADiscordService: Usage report filed: {s}", 
+                    "OADiscordService: Usage report filed: {s}",
                     JsonSerializer.Serialize(usage, new JsonSerializerOptions()
                     {
                         TypeInfoResolver = new UsageModelJsonSerializerContext(),

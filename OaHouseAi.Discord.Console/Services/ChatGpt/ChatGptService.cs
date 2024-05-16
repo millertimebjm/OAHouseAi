@@ -20,15 +20,15 @@ namespace OAHouseChatGpt.Services.ChatGpt
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly Lazy<JsonSerializerOptions> _chatGptBodyModelJsonSerializerOptions;
         private readonly Lazy<JsonSerializerOptions> _chatGptResponseModelJsonSerializerContext;
-        
+
         public ChatGptService(
             IOAHouseChatGptConfiguration configurationService,
             IHttpClientFactory httpClientFactory)
         {
-            _openAIApiKey = configurationService.GetOpenAIApiKey();
+            _openAIApiKey = configurationService.OpenAIApiKey;
             Log.Debug("ChatGPTService: OpenAI Api Key: {_openAIApiKey}", _openAIApiKey);
             _httpClientFactory = httpClientFactory;
-            _chatGptBodyModelJsonSerializerOptions = new Lazy<JsonSerializerOptions>(() => 
+            _chatGptBodyModelJsonSerializerOptions = new Lazy<JsonSerializerOptions>(() =>
                 new JsonSerializerOptions()
                 {
                     TypeInfoResolver = new ChatGptBodyModelJsonSerializerContext(),
@@ -55,7 +55,7 @@ namespace OAHouseChatGpt.Services.ChatGpt
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         private async Task<ChatGptResponseModel> HttpClient_SendChatGptRequest(
-            string text, 
+            string text,
             IEnumerable<ChatGptMessageModel> context)
         {
             Log.Debug("ChatGptService: Sending HttpClient request...");
@@ -83,7 +83,7 @@ namespace OAHouseChatGpt.Services.ChatGpt
                 return null;
             }
             var data = await httpResponseMessage.Content.ReadAsStringAsync();
-            
+
             var response = JsonSerializer.Deserialize<ChatGptResponseModel>(
                 data,
                 new JsonSerializerOptions()

@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OaHouseAi.Discord.Console\OaHouseAi.Discord.Console.csproj" />
+  </ItemGroup>
+
 </Project>

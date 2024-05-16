@@ -1,10 +1,24 @@
+using OAHouseChatGpt.Repositories;
+using OAHouseChatGpt.Services.Configuration;
+
 namespace OaHouseAi.Tests;
 
-public class UnitTest1
+public class UsageEntityFrameworkTests
 {
+
+
     [Fact]
-    public void Test1()
+    public void Insert_Equals()
     {
+        IOAHouseChatGptConfiguration config = new oAHouseChatGptConfigurationService(
+            oADiscordToken: "",
+            openAIApiKey: "",
+            discordBotId: "",
+            databaseConnectionString: "",
+            dbContextType: "InMemory"
+        );
+        IOaHouseAiDbContextFactory dbContextFactory = new OaHouseAiDbContextFactoryRollUp(config);
+        var context = dbContextFactory.GetDbContext(config.DbContextType);
 
     }
 }

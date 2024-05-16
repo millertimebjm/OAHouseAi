@@ -8,8 +8,8 @@ namespace OAHouseChatGpt.Repositories;
 
 public class OaHouseAiDbContextFactoryRollUp : IOaHouseAiDbContextFactory
 {
-    private readonly oAHouseChatGptConfigurationService _config;
-    public OaHouseAiDbContextFactoryRollUp(oAHouseChatGptConfigurationService config)
+    private readonly IOAHouseChatGptConfiguration _config;
+    public OaHouseAiDbContextFactoryRollUp(IOAHouseChatGptConfiguration config)
     {
         _config = config;
     }
