@@ -28,7 +28,9 @@ public class OaHouseAiDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<UsageModel>().ToCollection("Usage").HasKey(_ => _.Id);
-        
+        modelBuilder
+            .Entity<UsageModel>()
+            .ToCollection("Usage")
+            .HasKey(_ => _.Id);
     }
 }
