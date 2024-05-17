@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -18,8 +19,6 @@ namespace OAHouseChatGpt.Services.ChatGpt
         private const string _resource = "/v1/chat/completions";
         private readonly string _openAIApiKey;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly Lazy<JsonSerializerOptions> _chatGptBodyModelJsonSerializerOptions;
-        private readonly Lazy<JsonSerializerOptions> _chatGptResponseModelJsonSerializerContext;
 
         public ChatGptService(
             IOAHouseChatGptConfiguration configurationService,
@@ -28,16 +27,6 @@ namespace OAHouseChatGpt.Services.ChatGpt
             _openAIApiKey = configurationService.OpenAIApiKey;
             Log.Debug("ChatGPTService: OpenAI Api Key: {_openAIApiKey}", _openAIApiKey);
             _httpClientFactory = httpClientFactory;
-            _chatGptBodyModelJsonSerializerOptions = new Lazy<JsonSerializerOptions>(() =>
-                new JsonSerializerOptions()
-                {
-                    TypeInfoResolver = new ChatGptBodyModelJsonSerializerContext(),
-                });
-            _chatGptResponseModelJsonSerializerContext = new Lazy<JsonSerializerOptions>(() =>
-                new JsonSerializerOptions()
-                {
-                    TypeInfoResolver = new ChatGptResponseModelJsonSerializerContext()
-                });
         }
 
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
@@ -59,39 +48,22 @@ namespace OAHouseChatGpt.Services.ChatGpt
             IEnumerable<ChatGptMessageModel> context)
         {
             Log.Debug("ChatGptService: Sending HttpClient request...");
-            var postData = JsonSerializer.Serialize(
-                CreateBody(text, context),
-                _chatGptBodyModelJsonSerializerOptions.Value);
-            var request = new HttpRequestMessage(HttpMethod.Post, _baseUrl + _resource)
-            {
-                Content = new StringContent(
-                    postData,
-                    Encoding.UTF8,
-                    "application/json")
-            };
-            Log.Debug("GetTextCompletion: SendChatGptRequest post data: {postData}", postData);
+            var body = CreateBody(text, context);
+            Log.Debug("GetTextCompletion: SendChatGptRequest post data: {postData}", body.Serialize());
             var httpClient = _httpClientFactory.CreateClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAIApiKey);
-            var httpResponseMessage = await httpClient.SendAsync(request);
-            // var httpResponseMessage = await httpClient.PostAsync(
-            //     _resource,
-            //     new StringContent(postData, Encoding.UTF8, "application/json"));
-            if (!httpResponseMessage.IsSuccessStatusCode)
+
+            var response = await httpClient.PostAsJsonAsync(
+                _baseUrl + _resource, 
+                body,
+                ChatGptBodyModel.GetJsonSerializerOptions());
+            if (!response.IsSuccessStatusCode)
             {
-                Log.Error($"HttpClient Request error: {request}");
-                Log.Error($"HttpClient Response error: {httpResponseMessage}");
+                Log.Error("HttpClient Response error: {s1}, {s2}", response.StatusCode, response.ReasonPhrase);
                 return null;
             }
-            var data = await httpResponseMessage.Content.ReadAsStringAsync();
-
-            var response = JsonSerializer.Deserialize<ChatGptResponseModel>(
-                data,
-                new JsonSerializerOptions()
-                {
-                    TypeInfoResolver = new ChatGptResponseModelJsonSerializerContext()
-                });
-
-            return response;
+            return await response.Content.ReadFromJsonAsync<ChatGptResponseModel>(
+                ChatGptResponseModel.GetJsonSerializerOptions());
         }
 
         private ChatGptBodyModel CreateBody(

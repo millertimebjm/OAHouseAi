@@ -1,4 +1,6 @@
 
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OAHouseChatGpt.Models.Usages;
@@ -10,6 +12,21 @@ public class UsageModel
     public string Username { get; set; }
     public int TotalTokens { get; set; }
     public DateTime UtcTimestamp { get; set; }
+
+    public static JsonSerializerOptions GetJsonSerializerOptions()
+    {
+        return new JsonSerializerOptions()
+        {
+            TypeInfoResolver = new UsageModelJsonSerializerContext(),
+        };
+    }
+
+    [RequiresUnreferencedCode("")]
+    [RequiresDynamicCode("")]
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this, GetJsonSerializerOptions());
+    }
 }
 
 [JsonSerializable(typeof(UsageModel))]

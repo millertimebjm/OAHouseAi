@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OAHouseChatGpt.Services.ChatGpt;
@@ -34,6 +36,21 @@ public class ChatGptResponseModel
                     return CompletionStatusEnum.Unknown;
             }
         }
+    }
+
+    public static JsonSerializerOptions GetJsonSerializerOptions()
+    {
+        return new JsonSerializerOptions()
+        {
+            TypeInfoResolver = new ChatGptResponseModelJsonSerializerContext(),
+        };
+    }
+
+    [RequiresUnreferencedCode("")]
+    [RequiresDynamicCode("")]
+    public string Serialize()
+    {
+        return JsonSerializer.Serialize(this, GetJsonSerializerOptions());
     }
 }
 
