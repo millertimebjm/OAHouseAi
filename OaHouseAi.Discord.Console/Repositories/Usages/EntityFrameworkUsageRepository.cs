@@ -1,4 +1,5 @@
 
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using OAHouseChatGpt.Models.Usages;
 using OAHouseChatGpt.Services.Configuration;
@@ -18,6 +19,11 @@ public class EntityFrameworkUsageRepository : IUsageRepository
         _oaHouseAiDbContextFactory = oaHouseAiDbContextFactory;
 
         _dbContext = new Lazy<OaHouseAiDbContext>(_oaHouseAiDbContextFactory.GetDbContext(config.DbContextType));
+    }
+
+    public async Task<UsageModel> GetById(string id)
+    {
+        return await _dbContext.Value.Usages.SingleOrDefaultAsync(_ => _.Id == id);
     }
 
     public async Task Insert(UsageModel model)

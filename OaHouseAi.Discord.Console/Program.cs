@@ -6,6 +6,7 @@ using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using OAHouseChatGpt.Repositories.Usages;
+using OAHouseChatGpt.Repositories;
 
 namespace OAHouseChatGpt
 {
@@ -63,11 +64,12 @@ namespace OAHouseChatGpt
                 config.GetValue<string>($"{_applicationNameConfigurationService}:OpenAiApiKey"),
                 config.GetValue<string>($"{_applicationNameConfigurationService}:DiscordBotId"),
                 config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"),
-                "MongoDb"
+                DbContextTypeEnum.MongoDb
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
             serviceCollection.AddTransient<IOaDiscord, OADiscordService>();
             serviceCollection.AddTransient<IUsageRepository, EntityFrameworkUsageRepository>();
+            serviceCollection.AddTransient<IOaHouseAiDbContextFactory, OaHouseAiDbContextFactoryRollUp>();
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 

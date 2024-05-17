@@ -1,5 +1,6 @@
 
 using MongoDB.Driver;
+using OAHouseChatGpt.Repositories;
 
 namespace OAHouseChatGpt.Services.Configuration
 {
@@ -9,14 +10,14 @@ namespace OAHouseChatGpt.Services.Configuration
         public string OpenAIApiKey { get; }
         public string DiscordBotId { get; }
         public string DatabaseConnectionString { get; }
-        public string DbContextType { get; }
+        public DbContextTypeEnum DbContextType { get; }
 
         public oAHouseChatGptConfigurationService(
             string oADiscordToken,
             string openAIApiKey,
             string discordBotId,
             string databaseConnectionString,
-            string dbContextType)
+            DbContextTypeEnum dbContextType)
         {
             OADiscordToken = oADiscordToken;
             OpenAIApiKey = openAIApiKey;

@@ -5,5 +5,5 @@ namespace OAHouseChatGpt.Repositories;
 
 public interface IOaHouseAiDbContextFactory
 {
-    OaHouseAiDbContext GetDbContext(string type);
+    OaHouseAiDbContext GetDbContext(DbContextTypeEnum type);
 }

@@ -14,14 +14,14 @@ public class OaHouseAiDbContextFactoryRollUp : IOaHouseAiDbContextFactory
         _config = config;
     }
 
-    public OaHouseAiDbContext GetDbContext(string type)
+    public OaHouseAiDbContext GetDbContext(DbContextTypeEnum type)
     {
-        if (type == "MongoDb")
+        if (type == DbContextTypeEnum.MongoDb)
         {
             var client = new MongoClient(_config.DatabaseConnectionString);
             return OaHouseAiDbContext.Create(client.GetDatabase("OaHouseAi"));
         }
-        else if (type == "InMemory")
+        else if (type == DbContextTypeEnum.InMemory)
         {
             var options = new DbContextOptionsBuilder<OaHouseAiDbContext>()
                 .UseInMemoryDatabase("OaHouseAi")

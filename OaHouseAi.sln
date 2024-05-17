@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OaHouseAi.Discord.Console", "OaHouseAi.Discord.Console\OaHouseAi.Discord.Console.csproj", "{764948D5-7541-4087-81EE-1B8B68DB590C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OaHouseAi.Tests", "OaHouseAi.Tests\OaHouseAi.Tests.csproj", "{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}"
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -33,5 +35,17 @@ Global
 		{764948D5-7541-4087-81EE-1B8B68DB590C}.Release|x64.Build.0 = Release|Any CPU
 		{764948D5-7541-4087-81EE-1B8B68DB590C}.Release|x86.ActiveCfg = Release|Any CPU
 		{764948D5-7541-4087-81EE-1B8B68DB590C}.Release|x86.Build.0 = Release|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Debug|x64.Build.0 = Debug|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Debug|x86.Build.0 = Debug|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Release|x64.ActiveCfg = Release|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Release|x64.Build.0 = Release|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Release|x86.ActiveCfg = Release|Any CPU
+		{ADED4A2F-3BDA-4D23-BE80-2C7B9A16C99F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

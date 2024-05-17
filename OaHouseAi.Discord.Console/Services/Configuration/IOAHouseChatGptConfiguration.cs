@@ -1,4 +1,6 @@
 
+using OAHouseChatGpt.Repositories;
+
 namespace OAHouseChatGpt.Services.Configuration
 {
     public interface IOAHouseChatGptConfiguration
@@ -7,6 +9,6 @@ namespace OAHouseChatGpt.Services.Configuration
         public string OpenAIApiKey { get; }
         public string DiscordBotId { get; }
         public string DatabaseConnectionString { get; }
-        public string DbContextType { get; }
+        public DbContextTypeEnum DbContextType { get; }
     }
 }
