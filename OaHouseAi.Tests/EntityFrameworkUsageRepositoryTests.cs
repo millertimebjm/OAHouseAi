@@ -21,10 +21,10 @@ public class UsageEntityFrameworkTests
         IUsageRepository usageRepository = new EntityFrameworkUsageRepository(config, dbContextFactory);
         var usageModel = new UsageModel()
         {
-            ModelName = Faker.StringFaker.AlphaNumeric(20),
-            TotalTokens = Faker.NumberFaker.Number(1000),
-            Username = Faker.StringFaker.AlphaNumeric(20),
-            UtcTimestamp = Faker.DateTimeFaker.DateTimeBetweenDays(10),
+            ModelName = Faker.Lorem.Sentence(5),
+            TotalTokens = Faker.RandomNumber.Next(),
+            Username = Faker.Internet.UserName(),
+            UtcTimestamp = Faker.Identification.DateOfBirth(),
         };
         await usageRepository.Insert(usageModel);
         var newUsageModel = await usageRepository.GetById(usageModel.Id);
@@ -48,10 +48,10 @@ public class UsageEntityFrameworkTests
         IUsageRepository usageRepository = new EntityFrameworkUsageRepository(config, dbContextFactory);
         var usageModel = new UsageModel()
         {
-            ModelName = Faker.StringFaker.AlphaNumeric(20),
-            TotalTokens = Faker.NumberFaker.Number(1000),
-            Username = Faker.StringFaker.AlphaNumeric(20),
-            UtcTimestamp = Faker.DateTimeFaker.DateTimeBetweenDays(10),
+            ModelName = Faker.Lorem.Sentence(5),
+            TotalTokens = Faker.RandomNumber.Next(),
+            Username = Faker.Internet.UserName(),
+            UtcTimestamp = Faker.Identification.DateOfBirth(),
         };
         var newUsageModel = await usageRepository.GetById(usageModel.Id);
         Assert.Null(newUsageModel);
