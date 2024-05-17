@@ -36,17 +36,8 @@ namespace OAHouseChatGpt.Services.ChatGpt
             IEnumerable<ChatGptMessageModel> context = null)
         {
             Log.Debug("ChatGPTService: Text completion text: {text}", text);
-            if (string.IsNullOrWhiteSpace(_openAIApiKey)) return null;
+            if (string.IsNullOrWhiteSpace(_openAIApiKey)) throw new ArgumentException("OpenAiApiKey is not set.");
 
-            return await HttpClient_SendChatGptRequest(text, context);
-        }
-
-        [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
-        [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
-        private async Task<ChatGptResponseModel> HttpClient_SendChatGptRequest(
-            string text,
-            IEnumerable<ChatGptMessageModel> context)
-        {
             Log.Debug("ChatGptService: Sending HttpClient request...");
             var body = CreateBody(text, context);
             Log.Debug("GetTextCompletion: SendChatGptRequest post data: {postData}", body.Serialize());
