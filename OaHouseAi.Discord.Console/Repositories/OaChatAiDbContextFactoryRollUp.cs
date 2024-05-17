@@ -1,4 +1,5 @@
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using OAHouseChatGpt.Services.ChatGpt;
@@ -14,6 +15,8 @@ public class OaHouseAiDbContextFactoryRollUp : IOaHouseAiDbContextFactory
         _config = config;
     }
 
+    [RequiresDynamicCode("")]
+    [RequiresUnreferencedCode("")]
     public OaHouseAiDbContext GetDbContext(DbContextTypeEnum type)
     {
         if (type == DbContextTypeEnum.MongoDb)

@@ -5,8 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
-using OAHouseChatGpt.Repositories.Usages;
+//using OAHouseChatGpt.Repositories.Usages;
 using OAHouseChatGpt.Repositories;
+using OAHouseChatGpt.Repositories.Usages;
 
 namespace OAHouseChatGpt
 {
@@ -68,7 +69,7 @@ namespace OAHouseChatGpt
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
             serviceCollection.AddTransient<IOaDiscord, OADiscordService>();
-            serviceCollection.AddTransient<IUsageRepository, EntityFrameworkUsageRepository>();
+            serviceCollection.AddTransient<IUsageRepository, MongoDbUsageRepository>();
             serviceCollection.AddTransient<IOaHouseAiDbContextFactory, OaHouseAiDbContextFactoryRollUp>();
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();

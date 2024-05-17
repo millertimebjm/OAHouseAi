@@ -7,7 +7,7 @@
     <ContainerRepository>oahouseai</ContainerRepository>
     <IsPublishable>true</IsPublishable>
     <EnableSdkContainerSupport>true</EnableSdkContainerSupport> 
-    <!-- <PublishAot>true</PublishAot> -->
+    <PublishAot>true</PublishAot>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="3.9.0" />
