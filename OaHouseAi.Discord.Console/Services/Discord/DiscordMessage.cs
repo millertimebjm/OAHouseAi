@@ -9,7 +9,7 @@ public class DiscordMessage
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }
-    [JsonPropertyName("channelid")]
+    [JsonPropertyName("channel_id")]
     public string ChannelId { get; set; }
     [JsonPropertyName("content")]
     public string Content { get; set; }

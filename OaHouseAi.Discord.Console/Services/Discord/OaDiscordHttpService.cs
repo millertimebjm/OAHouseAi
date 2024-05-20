@@ -88,6 +88,7 @@ public class OaDiscordHttpService : IOaDiscordHttp
             Log.Error("OaDiscordHttpService: GetChannelAsync: There was an error triggering the typingon channel {s1} {s2}", channelId, response.ReasonPhrase);
             return null;
         }
+        Log.Debug("OaDiscordHttpService: GetMessageAsync: {s}", await response.Content.ReadAsStringAsync());
         return await response.Content.ReadFromJsonAsync<DiscordMessage>(DiscordMessage.GetJsonSerializerOptions());
     }
 
