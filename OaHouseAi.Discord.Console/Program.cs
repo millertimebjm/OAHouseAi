@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 //using OAHouseChatGpt.Repositories.Usages;
 using OAHouseChatGpt.Repositories;
 using OAHouseChatGpt.Repositories.Usages;
+using OAHouseChatGpt.Services.Discord;
 
 namespace OAHouseChatGpt
 {
@@ -68,14 +69,15 @@ namespace OAHouseChatGpt
                 DbContextTypeEnum.MongoDb
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
-            serviceCollection.AddTransient<IOaDiscord, OADiscordService>();
+            serviceCollection.AddTransient<IOaDiscordSdk, OaDiscordSdkService>();
+            serviceCollection.AddTransient<IOaDiscordHttp, OaDiscordHttpService>();
             serviceCollection.AddTransient<IUsageRepository, MongoDbUsageRepository>();
             serviceCollection.AddTransient<IOaHouseAiDbContextFactory, OaHouseAiDbContextFactoryRollUp>();
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             #region PROD
-            var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
+            var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscordSdk>();
             await oaDiscordService.Start();
             #endregion PROD
 
