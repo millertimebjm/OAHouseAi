@@ -21,8 +21,10 @@ public class DiscordIdentifyD
     public string ChannelId { get; set; }
     [JsonPropertyName("heartbeat_interval")]
     public int? HeartbeatInterval { get; set; }
+    [JsonPropertyName("mentions")]
+    public List<DiscordUser> Mentions { get; set; }
 
-    
+
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         return new JsonSerializerOptions()
