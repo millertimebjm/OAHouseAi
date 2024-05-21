@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using OAHouseChatGpt.Repositories;
 using OAHouseChatGpt.Repositories.Usages;
 using OAHouseChatGpt.Services.Discord;
+using OAHouseChatGpt.Models.Usages;
 
 namespace OAHouseChatGpt
 {
@@ -78,6 +79,9 @@ namespace OAHouseChatGpt
             serviceCollection.AddTransient<IOaHouseAiDbContextFactory, OaHouseAiDbContextFactoryRollUp>();
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            // Register a MongoDb Serializer that doesn't use Reflection for NativeAoT support 
+            UsageModelBsonSerializer.RegisterBsonSerializer();
 
             #region PROD
             var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscordSdk>();
