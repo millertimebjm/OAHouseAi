@@ -9,6 +9,7 @@ namespace OAHouseChatGpt.Services.Configuration
         public string OpenAIApiKey { get; }
         public string DiscordBotId { get; }
         public string DatabaseConnectionString { get; }
+        public string LoggingCollectionName { get; }
         public DbContextTypeEnum DbContextType { get; }
     }
 }

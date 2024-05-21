@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using OAHouseChatGpt.Models.Usages;
 using OAHouseChatGpt.Services.Configuration;
-using Serilog;
 
 namespace OAHouseChatGpt.Repositories.Usages;
 
@@ -18,8 +17,8 @@ public class MongoDbUsageRepository : IUsageRepository
         _collection = new Lazy<IMongoCollection<UsageModel>>(() =>
         {
             var client = new MongoClient(_config.DatabaseConnectionString);
-            var database = client.GetDatabase("Usage");
-            return database.GetCollection<UsageModel>("OaHouseAi");
+            var database = client.GetDatabase("OaHouseAi");
+            return database.GetCollection<UsageModel>("Usage");
         });
     }
 

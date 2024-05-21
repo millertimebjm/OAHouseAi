@@ -68,6 +68,7 @@ namespace OAHouseChatGpt
                 config.GetValue<string>($"{_applicationNameConfigurationService}:OpenAiApiKey"),
                 config.GetValue<string>($"{_applicationNameConfigurationService}:DiscordBotId"),
                 config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"),
+                config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingCollectionName"),
                 DbContextTypeEnum.MongoDb
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
