@@ -19,7 +19,9 @@ public class DiscordMessage
     public DateTime Timestamp { get; set; }
     [JsonPropertyName("message_reference")]
     public DiscordMessageReference Reference { get; set; }
-    
+    [JsonPropertyName("mentions")]
+    public List<DiscordUser> MentionedUsers { get; set; }
+
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         return new JsonSerializerOptions()
@@ -41,3 +43,5 @@ public partial class DiscordMessageJsonSerializerContext : JsonSerializerContext
 {
 
 }
+
+// "mentions":[{"username":"OAHouseChatGpt-Test","public_flags":0,"member":{"roles":["1082692723452162071"],"premium_since":null,"pending":false,"nick":null,"mute":false,"joined_at":"2023-03-07T15:54:20.813000+00:00","flags":0,"deaf":false,"communication_disabled_until":null,"avatar":null},"id":"1082692016426713148","global_name":null,"discriminator":"4773","clan":null,"bot":true,"avatar_decoration_data":null,"avatar":null}]

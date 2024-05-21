@@ -5,22 +5,20 @@ using System.Text.Json.Serialization;
 
 namespace OAHouseChatGpt.Services.Discord;
 
-public class DiscordIdentify<TIdentify>
+public class DiscordGatewayIntent
 {
-    [JsonPropertyName("op")]
-    public int Op { get; set; }
-    [JsonPropertyName("d")]
-    public TIdentify D { get; set; }
-    [JsonPropertyName("s")]
-    public int? S { get; set; }
-    [JsonPropertyName("t")]
-    public string T { get; set; }
+    [JsonPropertyName("token")]
+    public string Token { get; set; }
+    [JsonPropertyName("intents")]
+    public string Intents { get; set; }
+    [JsonPropertyName("properties")]
+    public DiscordGatewayIntentProperties Properties { get; set; }
 
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         return new JsonSerializerOptions()
         {
-            TypeInfoResolver = new DiscordIdentifyJsonSerializerContext<TIdentify>(),
+            TypeInfoResolver = new DiscordGatewayIntentJsonSerializerContext(),
         };
     }
 
@@ -32,10 +30,8 @@ public class DiscordIdentify<TIdentify>
     }
 }
 
-[JsonSerializable(typeof(DiscordIdentify<DiscordMessage>))]
-[JsonSerializable(typeof(DiscordIdentify<DiscordGatewayIntent>))]
-[JsonSerializable(typeof(DiscordIdentify<DiscordHeartbeat>))]
-public partial class DiscordIdentifyJsonSerializerContext<TIdentify> : JsonSerializerContext
+[JsonSerializable(typeof(DiscordGatewayIntent))]
+public partial class DiscordGatewayIntentJsonSerializerContext : JsonSerializerContext
 {
 
 }

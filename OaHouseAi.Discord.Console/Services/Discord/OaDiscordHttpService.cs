@@ -41,7 +41,7 @@ public class OaDiscordHttpService : IOaDiscordHttp
 
     [RequiresUnreferencedCode("")]
     [RequiresDynamicCode("")]
-    public async Task<DiscordChannel> GetChannelAsync(string channelId) 
+    public async Task<DiscordChannel> GetChannelAsync(string channelId)
     {
         var url = $"https://discord.com/api/v10/channels/{channelId}";
         var httpClient = _httpClientFactory.CreateClient();
@@ -59,7 +59,7 @@ public class OaDiscordHttpService : IOaDiscordHttp
 
     [RequiresUnreferencedCode("")]
     [RequiresDynamicCode("")]
-    public async Task<bool> TriggerTypingAsync(string channelId) 
+    public async Task<bool> TriggerTypingAsync(string channelId)
     {
         var url = $"https://discord.com/api/v10/channels/{channelId}/typing";
         var httpClient = _httpClientFactory.CreateClient();
@@ -85,7 +85,7 @@ public class OaDiscordHttpService : IOaDiscordHttp
         if (!response.IsSuccessStatusCode)
         {
             // Handle error response appropriately
-            Log.Error("OaDiscordHttpService: GetChannelAsync: There was an error triggering the typingon channel {s1} {s2}", channelId, response.ReasonPhrase);
+            Log.Error("OaDiscordHttpService: GetChannelAsync: Getting the message channel id: {s1}, message id: {s2}", channelId, response.ReasonPhrase);
             return null;
         }
         Log.Debug("OaDiscordHttpService: GetMessageAsync: {s}", await response.Content.ReadAsStringAsync());

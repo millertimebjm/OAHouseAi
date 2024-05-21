@@ -5,20 +5,16 @@ using System.Text.Json.Serialization;
 
 namespace OAHouseChatGpt.Services.Discord;
 
-public class DiscordIdentifyDProperties
+public class DiscordHeartbeat
 {
-    [JsonPropertyName("os")]
-    public string Os { get; set; }
-    [JsonPropertyName("browser")]
-    public string Browser { get; set; }
-    [JsonPropertyName("device")]
-    public string Device { get; set; }
-    
+    [JsonPropertyName("heartbeat_interval")]
+    public int? HeartbeatInterval { get; set; }
+
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         return new JsonSerializerOptions()
         {
-            TypeInfoResolver = new DiscordIdentifyDPropertiesJsonSerializerContext(),
+            TypeInfoResolver = new DiscordHeartbeatJsonSerializerContext(),
         };
     }
 
@@ -30,8 +26,8 @@ public class DiscordIdentifyDProperties
     }
 }
 
-[JsonSerializable(typeof(DiscordIdentifyDProperties))]
-public partial class DiscordIdentifyDPropertiesJsonSerializerContext : JsonSerializerContext
+[JsonSerializable(typeof(DiscordHeartbeat))]
+public partial class DiscordHeartbeatJsonSerializerContext : JsonSerializerContext
 {
 
 }

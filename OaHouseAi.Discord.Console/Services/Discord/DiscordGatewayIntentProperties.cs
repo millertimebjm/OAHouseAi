@@ -5,31 +5,20 @@ using System.Text.Json.Serialization;
 
 namespace OAHouseChatGpt.Services.Discord;
 
-public class DiscordIdentifyD
+public class DiscordGatewayIntentProperties
 {
-    [JsonPropertyName("token")]
-    public string Token { get; set; }
-    [JsonPropertyName("intents")]
-    public string Intents { get; set; }
-    [JsonPropertyName("properties")]
-    public DiscordIdentifyDProperties Properties { get; set; }
-    [JsonPropertyName("id")]
-    public string MessageId { get; set; }
-    [JsonPropertyName("content")]
-    public string Content { get; set; }
-    [JsonPropertyName("channel_id")]
-    public string ChannelId { get; set; }
-    [JsonPropertyName("heartbeat_interval")]
-    public int? HeartbeatInterval { get; set; }
-    [JsonPropertyName("mentions")]
-    public List<DiscordUser> Mentions { get; set; }
-
+    [JsonPropertyName("os")]
+    public string Os { get; set; }
+    [JsonPropertyName("browser")]
+    public string Browser { get; set; }
+    [JsonPropertyName("device")]
+    public string Device { get; set; }
 
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         return new JsonSerializerOptions()
         {
-            TypeInfoResolver = new DiscordIdentifyDJsonSerializerContext(),
+            TypeInfoResolver = new DiscordGatewayIntentPropertiesJsonSerializerContext(),
         };
     }
 
@@ -41,8 +30,8 @@ public class DiscordIdentifyD
     }
 }
 
-[JsonSerializable(typeof(DiscordIdentifyD))]
-public partial class DiscordIdentifyDJsonSerializerContext : JsonSerializerContext
+[JsonSerializable(typeof(DiscordGatewayIntentProperties))]
+public partial class DiscordGatewayIntentPropertiesJsonSerializerContext : JsonSerializerContext
 {
 
 }

@@ -27,6 +27,8 @@ namespace OAHouseChatGpt
             const string _applicationNameConfigurationService = "OaHouseAi";
             const string _appConfigEnvironmentVariableName = "AppConfigConnectionString";
 
+            Log.Debug("Looking in this path for local settings: {s1}", Directory.GetCurrentDirectory());
+
             var builder = new ConfigurationBuilder();
             var config = builder
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -35,11 +37,11 @@ namespace OAHouseChatGpt
                 .Build();
 
             string appConfigConnectionString =
-                        // Windows config value
-                        config[_appConfigEnvironmentVariableName]
-                        // Linux config value
-                        ?? config[$"Values:{_appConfigEnvironmentVariableName}"]
-                        ?? throw new ArgumentNullException(_appConfigEnvironmentVariableName);
+                // Windows config value
+                config[_appConfigEnvironmentVariableName]
+                // Linux config value
+                ?? config[$"Values:{_appConfigEnvironmentVariableName}"]
+                ?? throw new ArgumentNullException(_appConfigEnvironmentVariableName);
 
             config = builder
                 .SetBasePath(Directory.GetCurrentDirectory())
