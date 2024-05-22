@@ -15,6 +15,7 @@ public class UsageEntityFrameworkTests
             openAIApiKey: "",
             discordBotId: "",
             databaseConnectionString: "",
+            loggingCollectionName: "",
             dbContextType: DbContextTypeEnum.InMemory
         );
         IOaHouseAiDbContextFactory dbContextFactory = new OaHouseAiDbContextFactoryRollUp(config);
@@ -42,6 +43,7 @@ public class UsageEntityFrameworkTests
             openAIApiKey: "",
             discordBotId: "",
             databaseConnectionString: "",
+            loggingCollectionName: "",
             dbContextType: DbContextTypeEnum.InMemory
         );
         IOaHouseAiDbContextFactory dbContextFactory = new OaHouseAiDbContextFactoryRollUp(config);

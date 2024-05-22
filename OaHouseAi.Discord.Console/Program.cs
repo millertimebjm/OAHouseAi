@@ -73,7 +73,7 @@ namespace OAHouseChatGpt
                 DbContextTypeEnum.MongoDb
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
-            serviceCollection.AddTransient<IOaDiscordSdk, OaDiscordSdkService>();
+            serviceCollection.AddTransient<IOaDiscord, OaDiscordService>();
             serviceCollection.AddTransient<IOaDiscordHttp, OaDiscordHttpService>();
             serviceCollection.AddTransient<IUsageRepository, MongoDbUsageRepository>();
             serviceCollection.AddTransient<IOaHouseAiDbContextFactory, OaHouseAiDbContextFactoryRollUp>();
@@ -84,7 +84,7 @@ namespace OAHouseChatGpt
             UsageModelBsonSerializer.RegisterBsonSerializer();
 
             #region PROD
-            var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscordSdk>();
+            var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
             await oaDiscordService.Start();
             #endregion PROD
 

@@ -1,5 +1,6 @@
 
 using System.Diagnostics.CodeAnalysis;
+using System.Dynamic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
@@ -69,3 +70,11 @@ public partial class UsageModelJsonSerializerContext : JsonSerializerContext
 {
 
 }
+
+[JsonSerializable(typeof(ExpandoObject))]
+public partial class ExpandoObjectJsonSerializerContext : JsonSerializerContext
+{
+
+}
+
+

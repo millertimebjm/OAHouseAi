@@ -1,4 +1,5 @@
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 using OAHouseChatGpt.Models.Usages;
@@ -10,6 +11,9 @@ public class EntityFrameworkUsageRepository : IUsageRepository
 {
     private readonly Lazy<OaHouseAiDbContext> _dbContext;
     private readonly IOaHouseAiDbContextFactory _oaHouseAiDbContextFactory;
+
+    [RequiresUnreferencedCode("")]
+    [RequiresDynamicCode("")]
     public EntityFrameworkUsageRepository(
         IOAHouseChatGptConfiguration config,
         IOaHouseAiDbContextFactory oaHouseAiDbContextFactory)
