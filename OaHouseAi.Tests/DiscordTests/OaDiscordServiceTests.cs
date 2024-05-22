@@ -1,3 +1,4 @@
+using System.Net.WebSockets;
 using Moq;
 using OAHouseChatGpt.Repositories.Usages;
 using OAHouseChatGpt.Services.ChatGpt;
@@ -51,6 +52,7 @@ public class OaDiscordServiceTests
         var configurationServiceMock = new Mock<IOAHouseChatGptConfiguration>();
         var usageRepositoryMock = new Mock<IUsageRepository>();
         var discordHttpServiceMock = new Mock<IOaDiscordHttp>();
+        var clientWebSocketWrapperMock = new Mock<IClientWebSocketWrapper>();
         discordHttpServiceMock.Setup(_ => _.SendMessageAsync(
             channelId.ToString(),
             messageContent,
@@ -59,7 +61,8 @@ public class OaDiscordServiceTests
             gptServiceMock.Object,
             configurationServiceMock.Object,
             usageRepositoryMock.Object,
-            discordHttpServiceMock.Object
+            discordHttpServiceMock.Object,
+            clientWebSocketWrapperMock.Object
         );
         await discordService.SendLongMessage(
             channelId,
@@ -81,13 +84,14 @@ public class OaDiscordServiceTests
         var random = new Random();
         var channelId = Faker.RandomNumber.Next((long)0, long.MaxValue).ToString();
         var referenceMessage = Faker.RandomNumber.Next((long)0, long.MaxValue).ToString();
-        var messageContent = string.Join("", Faker.Lorem.Paragraphs(10));
+        var messageContent = string.Join("", Faker.Lorem.Paragraphs(50));
         if (messageContent.Length > testMessageLength) messageContent = messageContent[..testMessageLength];
 
         var gptServiceMock = new Mock<IChatGpt>();
         var configurationServiceMock = new Mock<IOAHouseChatGptConfiguration>();
         var usageRepositoryMock = new Mock<IUsageRepository>();
         var discordHttpServiceMock = new Mock<IOaDiscordHttp>();
+        var clientWebSocketWrapperMock = new Mock<ClientWebSocketWrapper>();
         discordHttpServiceMock.Setup(_ => _.SendMessageAsync(
             channelId.ToString(),
             messageContent,
@@ -96,8 +100,8 @@ public class OaDiscordServiceTests
             gptServiceMock.Object,
             configurationServiceMock.Object,
             usageRepositoryMock.Object,
-            discordHttpServiceMock.Object
-        );
+            discordHttpServiceMock.Object,
+            clientWebSocketWrapperMock.Object);
         await discordService.SendLongMessage(
             channelId,
             referenceMessage, 
@@ -109,5 +113,39 @@ public class OaDiscordServiceTests
         discordHttpServiceMock.Verify(m => m.SendMessageAsync(
             channelId, messageContent.Substring(maxMessageLength) + $" (tokens: {totalTokens})", referenceMessage), Times.Exactly(1));
         discordHttpServiceMock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task Identify_VerifySend()
+    {
+        var gptServiceMock = new Mock<IChatGpt>();
+        var configurationServiceMock = new Mock<IOAHouseChatGptConfiguration>();
+        var usageRepositoryMock = new Mock<IUsageRepository>();
+        var discordHttpServiceMock = new Mock<IOaDiscordHttp>();
+        var clientWebSocketWrapperMock = new Mock<IClientWebSocketWrapper>();
+        clientWebSocketWrapperMock.Setup(_ => _.SendAsync(
+            It.IsAny<ClientWebSocket>(),
+            new ArraySegment<byte>(new byte[0]), 
+            WebSocketMessageType.Text, 
+            true, 
+            CancellationToken.None))
+            .Returns(Task.CompletedTask);
+
+        IOaDiscord discordService = new OaDiscordService(
+            gptServiceMock.Object,
+            configurationServiceMock.Object,
+            usageRepositoryMock.Object,
+            discordHttpServiceMock.Object,
+            clientWebSocketWrapperMock.Object);
+
+        await discordService.Identify();
+        clientWebSocketWrapperMock.Verify(m => m.SendAsync(
+            It.IsAny<ClientWebSocket>(),
+            It.IsAny<ArraySegment<byte>>(),
+            WebSocketMessageType.Text,
+            true,
+            CancellationToken.None
+        ), Times.Exactly(1));
+        clientWebSocketWrapperMock.VerifyNoOtherCalls();
     }
 }

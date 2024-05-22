@@ -23,13 +23,15 @@ namespace OAHouseChatGpt.Services.OADiscord
         private readonly IUsageRepository _usageRepository;
         private readonly IOaDiscordHttp _discordHttpService;
         private static ClientWebSocket _clientWebSocket = new ClientWebSocket();
+        private readonly IClientWebSocketWrapper _clientWebSocketWrapper;
         private Func<DiscordMessage, Task> MessageReceivedEvent;
 
         public OaDiscordService(
             IChatGpt gptService,
             IOAHouseChatGptConfiguration configurationService,
             IUsageRepository usageRepository,
-            IOaDiscordHttp discordHttpService)
+            IOaDiscordHttp discordHttpService,
+            IClientWebSocketWrapper clientWebSocketWrapper)
         {
             var config = new DiscordSocketConfig() { MessageCacheSize = 100 };
             _client = new DiscordSocketClient(config);
@@ -40,6 +42,7 @@ namespace OAHouseChatGpt.Services.OADiscord
             _discordToken = _configurationService.OADiscordToken;
             _usageRepository = usageRepository;
             _discordHttpService = discordHttpService;
+            _clientWebSocketWrapper = clientWebSocketWrapper;
         }
 
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
@@ -65,8 +68,6 @@ namespace OAHouseChatGpt.Services.OADiscord
 
             var messageWithoutMention = RemoveMentionString(message.Content, _configurationService.DiscordBotId);
             Log.Debug("OADiscordService: received with mention removed: {s1}", messageWithoutMention);
-
-            //var textChannel = _client.GetChannelAsync(message.ChannelId.ToString());
 
             if (string.IsNullOrWhiteSpace(messageWithoutMention))
             {
@@ -154,40 +155,10 @@ namespace OAHouseChatGpt.Services.OADiscord
             var responseTask = _gptService.GetTextCompletion(message, context);
             while (!responseTask.IsCompleted)
             {
-                // await textChannel.TriggerTypingAsync();
                 await _discordHttpService.TriggerTypingAsync(channelId);
                 await Task.WhenAny(responseTask, Task.Delay(TimeSpan.FromSeconds(2)));
             }
             return await responseTask;
-        }
-
-        [RequiresUnreferencedCode("Calls OAHouseChatGpt.Services.OADiscord.OaDiscordSdkService.GetReferencedMessages(DiscordMessage, SocketTextChannel, UInt64)")]
-        [RequiresDynamicCode("Calls OAHouseChatGpt.Services.OADiscord.OaDiscordSdkService.GetReferencedMessages(DiscordMessage, SocketTextChannel, UInt64)")]
-        private async Task<IEnumerable<ChatGptMessageModel>> GetReferencedMessages(
-            IMessage message,
-            string channelId,
-            ulong discordBotId)
-        {
-            DiscordMessage referenceMessage = new DiscordMessage()
-            {
-                Id = message.Id.ToString(),
-                ChannelId = message.Channel.Id.ToString(),
-                Timestamp = message.CreatedAt.UtcDateTime,
-                Author = new DiscordUser()
-                {
-                    Id = message.Author.Id.ToString(),
-                },
-                Reference = new DiscordMessageReference()
-                {
-                    MessageId = message.Reference?.MessageId.Value.ToString(),
-                    ChannelId = message.Reference?.ChannelId.ToString(),
-                    GuildId = message.Reference?.GuildId.Value.ToString(),
-                },
-            };
-            return await GetReferencedMessages(
-                referenceMessage,
-                channelId,
-                discordBotId);
         }
 
         [RequiresUnreferencedCode("Calls OAHouseChatGpt.Services.Discord.IOaDiscordHttp.GetMessageAsync(String, String)")]
@@ -282,7 +253,7 @@ namespace OAHouseChatGpt.Services.OADiscord
 
         [RequiresUnreferencedCode("Calls OAHouseChatGpt.Services.Discord.DiscordIdentify.Serialize()")]
         [RequiresDynamicCode("Calls OAHouseChatGpt.Services.Discord.DiscordIdentify.Serialize()")]
-        private async Task Identify()
+        public async Task Identify()
         {
             var identifyPayload = new DiscordIdentify<DiscordGatewayIntent>
             {
@@ -303,8 +274,13 @@ namespace OAHouseChatGpt.Services.OADiscord
             var identifyJson = identifyPayload.Serialize();
             Log.Debug("OaDiscordSdkService: Identify: {s1}", identifyJson);
             var identifyBytes = Encoding.UTF8.GetBytes(identifyJson);
-            await _clientWebSocket.SendAsync(new ArraySegment<byte>(identifyBytes), WebSocketMessageType.Text, true, CancellationToken.None);
-            Console.WriteLine("Identify payload sent");
+            await _clientWebSocketWrapper.SendAsync(
+                _clientWebSocket,
+                new ArraySegment<byte>(identifyBytes), 
+                WebSocketMessageType.Text, 
+                endOfMessage: true, 
+                cancellationToken: CancellationToken.None);
+            Log.Debug("Identify payload sent");
         }
 
         [RequiresUnreferencedCode("Calls OAHouseChatGpt.Services.Discord.DiscordIdentify.Serialize()")]
@@ -314,7 +290,11 @@ namespace OAHouseChatGpt.Services.OADiscord
             var heartbeatPayload = new DiscordIdentify<DiscordHeartbeat> { Op = 1, D = null };
             var heartbeatJson = heartbeatPayload.Serialize();
             var heartbeatBytes = Encoding.UTF8.GetBytes(heartbeatJson);
-            await _clientWebSocket.SendAsync(new ArraySegment<byte>(heartbeatBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+            await _clientWebSocket.SendAsync(
+                new ArraySegment<byte>(heartbeatBytes), 
+                WebSocketMessageType.Text, 
+                endOfMessage: true,
+                cancellationToken: CancellationToken.None);
             Console.WriteLine("Heartbeat sent");
         }
 

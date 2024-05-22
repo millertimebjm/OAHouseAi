@@ -77,6 +77,7 @@ namespace OAHouseChatGpt
             serviceCollection.AddTransient<IOaDiscordHttp, OaDiscordHttpService>();
             serviceCollection.AddTransient<IUsageRepository, MongoDbUsageRepository>();
             serviceCollection.AddTransient<IOaHouseAiDbContextFactory, OaHouseAiDbContextFactoryRollUp>();
+            serviceCollection.AddTransient<IClientWebSocketWrapper, ClientWebSocketWrapper>();
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 

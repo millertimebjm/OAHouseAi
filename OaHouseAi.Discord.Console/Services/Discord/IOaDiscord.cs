@@ -16,5 +16,9 @@ namespace OAHouseChatGpt.Services.OADiscord
             string messageContent,
             int totalTokens,
             int maxMessageLength = 2000);
+
+        [RequiresUnreferencedCode("Calls OAHouseChatGpt.Services.Discord.DiscordIdentify.Serialize()")]
+        [RequiresDynamicCode("Calls OAHouseChatGpt.Services.Discord.DiscordIdentify.Serialize()")]
+        Task Identify();
     }
 }
