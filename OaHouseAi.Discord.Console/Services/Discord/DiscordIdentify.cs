@@ -1,45 +1,45 @@
 
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace OAHouseChatGpt.Services.Discord;
 
-public class DiscordIdentify<TIdentify>
+public class DiscordIdentify<T> : DiscordIdentifyBase
 {
-    [JsonPropertyName("op")]
-    public int Op { get; set; }
     [JsonPropertyName("d")]
-    public TIdentify D { get; set; }
-    [JsonPropertyName("s")]
-    public int? S { get; set; }
-    [JsonPropertyName("t")]
-    public string T { get; set; }
-
-    public static JsonSerializerOptions GetJsonSerializerOptions()
-    {
-        return new JsonSerializerOptions()
-        {
-            TypeInfoResolver = new DiscordIdentifyJsonSerializerContext<TIdentify>(),
-        };
-    }
-
-    [RequiresUnreferencedCode("")]
-    [RequiresDynamicCode("")]
-    public string Serialize()
-    {
-        return JsonSerializer.Serialize(this, GetJsonSerializerOptions());
-    }
+    public T D { get; set; }
 }
 
-[JsonSerializable(typeof(DiscordIdentify<DiscordMessage>))]
-[JsonSerializable(typeof(DiscordIdentify<DiscordGatewayIntent>))]
 [JsonSerializable(typeof(DiscordIdentify<DiscordHeartbeat>))]
-public partial class DiscordIdentifyJsonSerializerContext<TIdentify> : JsonSerializerContext
+[JsonSerializable(typeof(DiscordIdentify<DiscordGatewayIntent>))]
+[JsonSerializable(typeof(DiscordIdentify<DiscordMessage>))]
+public partial class DiscordIdentifyJsonSerializerContext : JsonSerializerContext
 {
 
 }
 
+
+// [RequiresUnreferencedCode("")]
+// [RequiresDynamicCode("")]
+// public class DiscordIdentifyConverter<T> : JsonConverter<DiscordIdentify<T>>
+// {
+//     public override DiscordIdentify<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+//     {
+//         // Deserialize the JSON manually since the structure of the JSON might vary based on the type of T.
+//         // For simplicity, let's assume T can be deserialized directly from the reader.
+//         T dValue = JsonSerializer.Deserialize<T>(ref reader, options);
+
+//         // Create a new DiscordIdentify<T> instance with the deserialized value.
+//         return new DiscordIdentify<T> { D = dValue };
+//     }
+
+//     [RequiresUnreferencedCode("")]
+//     [RequiresDynamicCode("")]
+//     public override void Write(Utf8JsonWriter writer, DiscordIdentify<T> value, JsonSerializerOptions options)
+//     {
+//         // Serialize the 'D' property directly.
+//         JsonSerializer.Serialize(writer, value.D, options);
+//     }
+// }
 
 // var identifyPayload = new
 //             {

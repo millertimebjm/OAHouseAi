@@ -18,13 +18,10 @@ namespace OAHouseChatGpt.Services.OADiscord
         private readonly DiscordSocketClient _client;
         private readonly IChatGpt _gptService;
         private readonly IOAHouseChatGptConfiguration _configurationService;
-        private readonly ulong _discordBotId;
-        private readonly string _discordToken;
         private readonly IUsageRepository _usageRepository;
         private readonly IOaDiscordHttp _discordHttpService;
         private static ClientWebSocket _clientWebSocket = new ClientWebSocket();
         private readonly IClientWebSocketWrapper _clientWebSocketWrapper;
-        private Func<DiscordMessage, Task> MessageReceivedEvent;
 
         public OaDiscordService(
             IChatGpt gptService,
@@ -39,7 +36,6 @@ namespace OAHouseChatGpt.Services.OADiscord
             _configurationService = configurationService;
             Log.Debug("OADiscordService: DiscordBotId: {s}", _configurationService.DiscordBotId);
             Log.Debug("OADiscordService: DiscordToken: {s}", _configurationService.OADiscordToken);
-            _discordToken = _configurationService.OADiscordToken;
             _usageRepository = usageRepository;
             _discordHttpService = discordHttpService;
             _clientWebSocketWrapper = clientWebSocketWrapper;
@@ -62,7 +58,7 @@ namespace OAHouseChatGpt.Services.OADiscord
                 message.ChannelId,
                 message.Content);
 
-            if (!message.MentionedUsers.Any(_ => _.Id == _discordBotId.ToString()))
+            if (!message.MentionedUsers.Any(_ => _.Id == _configurationService.DiscordBotId.ToString()))
                 //&& !message.MentionedRoles.Any(_ => _.Id == _discordBotId))
                 return;
 
@@ -86,7 +82,7 @@ namespace OAHouseChatGpt.Services.OADiscord
                 var context = await GetReferencedMessages(
                     message,
                     message.ChannelId.ToString(),
-                    _discordBotId);
+                    ulong.Parse(_configurationService.DiscordBotId));
                 var response = await CallTextCompletionAndWaitWithTyping(
                     messageWithoutMention,
                     context,
@@ -234,10 +230,12 @@ namespace OAHouseChatGpt.Services.OADiscord
             var buffer = new byte[1024 * 4];
             var result = await _clientWebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             var helloMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-            var helloData = JsonSerializer.Deserialize<DiscordIdentify<DiscordHeartbeat>>(helloMessage, DiscordIdentify<DiscordHeartbeat>.GetJsonSerializerOptions());
+            var helloData = JsonSerializer.Deserialize(helloMessage, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
             Console.WriteLine("Hello received: " + helloData);
-
-            var heartbeatInterval = helloData.D.HeartbeatInterval.Value / 1000;
+            // var heartbeatInterval = JsonSerializer.Deserialize<DiscordHeartbeat>(helloData.D, new JsonSerializerOptions()
+            // {
+            //     TypeInfoResolver = new DiscordHeartbeatJsonSerializerContext(),
+            // });
 
             await Identify();
 
@@ -245,7 +243,8 @@ namespace OAHouseChatGpt.Services.OADiscord
             {
                 while (true)
                 {
-                    await Task.Delay(heartbeatInterval * 1000);
+                    //await Task.Delay(helloData.D.HeartbeatInterval.Value * 1000);
+                    await Task.Delay(5* 1000);
                     await SendHeartbeat();
                 }
             });
@@ -260,8 +259,8 @@ namespace OAHouseChatGpt.Services.OADiscord
                 Op = 2,
                 D = new DiscordGatewayIntent
                 {
-                    Token = _discordToken,
-                    Intents = "33280",
+                    Token = _configurationService.OADiscordToken,
+                    Intents = "3243773",
                     Properties = new DiscordGatewayIntentProperties
                     {
                         Os = "linux",
@@ -271,7 +270,7 @@ namespace OAHouseChatGpt.Services.OADiscord
                 }
             };
 
-            var identifyJson = identifyPayload.Serialize();
+            var identifyJson = JsonSerializer.Serialize(identifyPayload, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordGatewayIntent);
             Log.Debug("OaDiscordSdkService: Identify: {s1}", identifyJson);
             var identifyBytes = Encoding.UTF8.GetBytes(identifyJson);
             await _clientWebSocketWrapper.SendAsync(
@@ -288,7 +287,7 @@ namespace OAHouseChatGpt.Services.OADiscord
         private async Task SendHeartbeat()
         {
             var heartbeatPayload = new DiscordIdentify<DiscordHeartbeat> { Op = 1, D = null };
-            var heartbeatJson = heartbeatPayload.Serialize();
+            var heartbeatJson = JsonSerializer.Serialize(heartbeatPayload, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
             var heartbeatBytes = Encoding.UTF8.GetBytes(heartbeatJson);
             await _clientWebSocket.SendAsync(
                 new ArraySegment<byte>(heartbeatBytes), 
@@ -319,13 +318,16 @@ namespace OAHouseChatGpt.Services.OADiscord
                 Log.Debug("Received message: {0}", message);
                 messageBuilder.Clear();
 
-                var gatewayEvent = JsonSerializer.Deserialize<DiscordIdentify<DiscordMessage>>(message, DiscordIdentify<DiscordMessage>.GetJsonSerializerOptions());
+                var gatewayEvent = JsonSerializer.Deserialize(
+                    message, DiscordIdentifyBaseJsonSerializerContext.Default.DiscordIdentifyBase);
                 Console.WriteLine("Event received: " + gatewayEvent.T);
 
                 if (gatewayEvent.T == "MESSAGE_CREATE")
                 {
-                    Console.WriteLine($"Message received in channel {gatewayEvent.D.ChannelId}/{gatewayEvent.D.Id}: {gatewayEvent.D.Content}");
-                    await OnMessageReceived(gatewayEvent.D);
+                    var gatewayEventDiscordMessage = JsonSerializer.Deserialize(
+                        message, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordMessage);
+                    Console.WriteLine($"Message received in channel {gatewayEventDiscordMessage.D.ChannelId}/{gatewayEventDiscordMessage.D.Id}: {gatewayEventDiscordMessage.D.Content}");
+                    await OnMessageReceived(gatewayEventDiscordMessage.D);
                 }
             }
         }

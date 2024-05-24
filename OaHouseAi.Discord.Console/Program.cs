@@ -82,7 +82,7 @@ namespace OAHouseChatGpt
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             // Register a MongoDb Serializer that doesn't use Reflection for NativeAoT support 
-            UsageModelBsonSerializer.RegisterBsonSerializer();
+            BsonSerializerRegistrationHelper.RegisterBsonSerializer();
 
             #region PROD
             var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();
