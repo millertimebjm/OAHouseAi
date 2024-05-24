@@ -88,18 +88,17 @@ namespace OAHouseChatGpt.Services.OADiscord
                     context,
                     message.ChannelId.ToString());
 
-                var usage = new UsageModel()
-                {
-                    ModelName = response.Model,
-                    Username = message.Author.Username,
-                    TotalTokens = response.Usage.TotalTokens,
-                    UtcTimestamp = DateTime.UtcNow
-                };
-                await _usageRepository.Insert(usage);
-
-                Log.Debug(
-                    "OADiscordSdkService: Usage report filed: {s}",
-                    usage.Serialize());
+                // var usage = new UsageModel()
+                // {
+                //     ModelName = response.Model,
+                //     Username = message.Author.Username,
+                //     TotalTokens = response.Usage.TotalTokens,
+                //     UtcTimestamp = DateTime.UtcNow
+                // };
+                // await _usageRepository.Insert(usage);
+                // Log.Debug(
+                //     "OADiscordSdkService: Usage report filed: {s}",
+                //     usage.Serialize());
 
                 var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
                 await SendLongMessage(
