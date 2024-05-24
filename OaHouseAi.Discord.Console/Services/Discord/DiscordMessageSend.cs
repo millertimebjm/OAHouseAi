@@ -11,7 +11,7 @@ public class DiscordMessageSend
     public string Content { get; set; }
     [JsonPropertyName("message_reference")]
     public DiscordMessageSendReference ReferenceMessage { get; set; }
-    
+
     public static JsonSerializerOptions GetJsonSerializerOptions()
     {
         return new JsonSerializerOptions()
