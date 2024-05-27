@@ -59,7 +59,9 @@ namespace OAHouseChatGpt
                 .MinimumLevel.Debug()
                 .WriteTo.Console()
                 .WriteTo.MongoDB(
-                    config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"),
+                    // config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer")
+                    //     + $"/{_applicationNameConfigurationService}:DatabaseName",
+                    "mongodb://media.bltmiller.com:27017/OaHouseAi",
                     config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingCollectionName"))
                 .CreateLogger();
 
@@ -70,6 +72,8 @@ namespace OAHouseChatGpt
                 config.GetValue<string>($"{_applicationNameConfigurationService}:DiscordBotId"),
                 config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingDbServer"),
                 config.GetValue<string>($"{_applicationNameConfigurationService}:LoggingCollectionName"),
+                config.GetValue<string>($"{_applicationNameConfigurationService}:DatabaseName"),
+                config.GetValue<string>($"{_applicationNameConfigurationService}:DatabaseServer"),
                 DbContextTypeEnum.MongoDb
             ));
             serviceCollection.AddTransient<IChatGpt, ChatGptService>();
@@ -80,9 +84,6 @@ namespace OAHouseChatGpt
             serviceCollection.AddTransient<IClientWebSocketWrapper, ClientWebSocketWrapper>();
             serviceCollection.AddHttpClient();
             var serviceProvider = serviceCollection.BuildServiceProvider();
-
-            // Register a MongoDb Serializer that doesn't use Reflection for NativeAoT support 
-            BsonSerializerRegistrationHelper.RegisterBsonSerializer();
 
             #region PROD
             var oaDiscordService = serviceProvider.GetRequiredService<IOaDiscord>();

@@ -11,6 +11,8 @@ namespace OAHouseChatGpt.Services.Configuration
         public string DiscordBotId { get; }
         public string DatabaseConnectionString { get; }
         public string LoggingCollectionName { get; }
+        public string DatabaseName { get; }
+        public string DatabaseServer { get; }
         public DbContextTypeEnum DbContextType { get; }
 
         public oAHouseChatGptConfigurationService(
@@ -19,6 +21,8 @@ namespace OAHouseChatGpt.Services.Configuration
             string discordBotId,
             string databaseConnectionString,
             string loggingCollectionName,
+            string databaseName,
+            string databaseServer,
             DbContextTypeEnum dbContextType)
         {
             OADiscordToken = oADiscordToken;
@@ -26,6 +30,8 @@ namespace OAHouseChatGpt.Services.Configuration
             DiscordBotId = discordBotId;
             DatabaseConnectionString = databaseConnectionString;
             LoggingCollectionName = loggingCollectionName;
+            DatabaseName = databaseName;
+            DatabaseServer = databaseServer;
             DbContextType = dbContextType;
         }
     }

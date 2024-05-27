@@ -17,6 +17,8 @@ public class OaHouseAiDbContextFactoryRollUpTests
             discordBotId: "",
             databaseConnectionString: "mongodb://test.test.com:27017/OaHouseAi",
             loggingCollectionName: "",
+            databaseName: "",
+            databaseServer: "",
             dbContextType: DbContextTypeEnum.InMemory
         );
         IOaHouseAiDbContextFactory dbContextFactory = new OaHouseAiDbContextFactoryRollUp(config);

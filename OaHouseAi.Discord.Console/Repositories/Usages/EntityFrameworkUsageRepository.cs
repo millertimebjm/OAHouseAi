@@ -1,40 +1,46 @@
 
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
-using MongoDB.Driver;
-using OAHouseChatGpt.Models.Usages;
-using OAHouseChatGpt.Services.Configuration;
+// using System.Diagnostics.CodeAnalysis;
+// using Microsoft.EntityFrameworkCore;
+// using MongoDB.Driver;
+// using OAHouseChatGpt.Models.Usages;
+// using OAHouseChatGpt.Services.Configuration;
 
-namespace OAHouseChatGpt.Repositories.Usages;
+// namespace OAHouseChatGpt.Repositories.Usages;
 
-public class EntityFrameworkUsageRepository : IUsageRepository
-{
-    private readonly Lazy<OaHouseAiDbContext> _dbContext;
-    private readonly IOaHouseAiDbContextFactory _oaHouseAiDbContextFactory;
+// public class EntityFrameworkUsageRepository : IUsageRepository
+// {
+//     private readonly Lazy<OaHouseAiDbContext> _dbContext;
+//     private readonly IOaHouseAiDbContextFactory _oaHouseAiDbContextFactory;
 
-    [RequiresUnreferencedCode("")]
-    [RequiresDynamicCode("")]
-    public EntityFrameworkUsageRepository(
-        IOAHouseChatGptConfiguration config,
-        IOaHouseAiDbContextFactory oaHouseAiDbContextFactory)
-    {
-        _oaHouseAiDbContextFactory = oaHouseAiDbContextFactory;
+//     [RequiresUnreferencedCode("")]
+//     [RequiresDynamicCode("")]
+//     public EntityFrameworkUsageRepository(
+//         IOAHouseChatGptConfiguration config,
+//         IOaHouseAiDbContextFactory oaHouseAiDbContextFactory)
+//     {
+//         _oaHouseAiDbContextFactory = oaHouseAiDbContextFactory;
 
-        _dbContext = new Lazy<OaHouseAiDbContext>(
-            _oaHouseAiDbContextFactory.GetDbContext(config.DbContextType));
-    }
+//         _dbContext = new Lazy<OaHouseAiDbContext>(
+//             _oaHouseAiDbContextFactory.GetDbContext(config.DbContextType));
+//     }
 
-    public async Task<UsageModel> GetById(string id)
-    {
-        return await _dbContext
-            .Value
-            .Usages
-            .SingleOrDefaultAsync(_ => _.Id == id);
-    }
+//     public async Task<UsageModel> GetById(string id)
+//     {
+//         return await _dbContext
+//             .Value
+//             .Usages
+//             .SingleOrDefaultAsync(_ => _.Id == id);
+//     }
 
-    public async Task Insert(UsageModel model)
-    {
-        await _dbContext.Value.AddAsync(model);
-        await _dbContext.Value.SaveChangesAsync();
-    }
-}
+//     public async Task<UsageModel> Insert(UsageModel model)
+//     {
+//         await _dbContext.Value.AddAsync(model);
+//         await _dbContext.Value.SaveChangesAsync();
+//         throw new NotImplementedException();
+//     }
+
+//     public Task<UsageModel> Insert(string modelName, string asdf, int totalTokens)
+//     {
+//         throw new NotImplementedException();
+//     }
+// }

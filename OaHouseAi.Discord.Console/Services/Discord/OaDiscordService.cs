@@ -50,7 +50,6 @@ namespace OAHouseChatGpt.Services.OADiscord
 
         [RequiresUnreferencedCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
         [RequiresDynamicCode("Calls System.Net.Http.Json.HttpClientJsonExtensions.PostAsJsonAsync<TValue>(String, TValue, JsonSerializerOptions, CancellationToken)")]
-        //private async Task OnMessageReceived(SocketMessage message)
         private async Task OnMessageReceived(DiscordMessage message)
         {
             Log.Debug("OADiscordService: Message received from '{s1}' in Channel '{s2}'): {s4}",
@@ -88,17 +87,11 @@ namespace OAHouseChatGpt.Services.OADiscord
                     context,
                     message.ChannelId.ToString());
 
-                // var usage = new UsageModel()
-                // {
-                //     ModelName = response.Model,
-                //     Username = message.Author.Username,
-                //     TotalTokens = response.Usage.TotalTokens,
-                //     UtcTimestamp = DateTime.UtcNow
-                // };
-                // await _usageRepository.Insert(usage);
-                // Log.Debug(
-                //     "OADiscordSdkService: Usage report filed: {s}",
-                //     usage.Serialize());
+                await _usageRepository.Insert(
+                    response.Model,
+                    message.Author.Username,
+                    response.Usage.TotalTokens
+                );
 
                 var responseText = response.Choices.FirstOrDefault().Message.Content ?? "";
                 await SendLongMessage(
@@ -183,20 +176,6 @@ namespace OAHouseChatGpt.Services.OADiscord
             return context;
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        private async Task OnConnected()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
-        {
-            try
-            {
-                Log.Debug("OADiscordService: Connected");
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"OADiscordService: {ex.Message}. {ex.StackTrace}");
-            }
-        }
-
         public static string RemoveTokenString(string s)
         {
             var tokenIndex = s.IndexOf("(tokens: ");
@@ -231,10 +210,6 @@ namespace OAHouseChatGpt.Services.OADiscord
             var helloMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
             var helloData = JsonSerializer.Deserialize(helloMessage, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
             Console.WriteLine("Hello received: " + helloData);
-            // var heartbeatInterval = JsonSerializer.Deserialize<DiscordHeartbeat>(helloData.D, new JsonSerializerOptions()
-            // {
-            //     TypeInfoResolver = new DiscordHeartbeatJsonSerializerContext(),
-            // });
 
             await Identify();
 

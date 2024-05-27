@@ -5,5 +5,6 @@ namespace OAHouseChatGpt.Repositories.Usages;
 public interface IUsageRepository
 {
     Task<UsageModel> GetById(string id);
-    Task Insert(UsageModel model);
+    Task<string> Upsert(UsageModel model);
+    Task<string> Insert(string modelName, string username, int totalTokens);
 }
