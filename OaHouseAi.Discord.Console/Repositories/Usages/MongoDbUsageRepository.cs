@@ -35,23 +35,18 @@ public class MongoDbUsageRepository : IUsageRepository
 
     public async Task<string> Upsert(UsageModel model)
     {
-        var properties = new Dictionary<string, object>()
-        {
-            { nameof(UsageModel.ModelName), model.ModelName },
-            { nameof(UsageModel.Username), model.Username },
-            { nameof(UsageModel.TotalTokens), model.TotalTokens },
-            { nameof(UsageModel.UtcTimestamp), model.UtcTimestamp }
-        };
+        var bson = model.ToBsonDocument();
         if (model.Id is null)
         {
-            var modelBson = new BsonDocument(properties);
-            await _collection.Value.InsertOneAsync(modelBson);
-            return modelBson["_id"].ToString();
+            bson.Remove("_id");
+            await _collection.Value.InsertOneAsync(bson);
+            return bson["_id"].ToString();
         }
-        var filter = Builders<BsonDocument>.Filter.Eq("_id", model.Id);
-        properties.Add(nameof(UsageModel.Id), model.Id);
-        await _collection.Value.UpdateOneAsync(filter, new BsonDocument(properties));
-        return model.Id;
+        throw new NotImplementedException();
+        // var filter = Builders<BsonDocument>.Filter.Eq("_id", model.Id);
+        // properties.Add(nameof(UsageModel.Id), model.Id);
+        // await _collection.Value.UpdateOneAsync(filter, new BsonDocument(properties));
+        // return model.Id;
     }
 
     public async Task<string> Insert(string modelName, string username, int totalTokens)

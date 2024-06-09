@@ -6,11 +6,17 @@ using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization.Attributes;
+
 
 namespace OAHouseChatGpt.Models.Usages;
 
 public class UsageModel
 {
+    [BsonElement("_id")]
+    [JsonPropertyName("_id")]
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; } = null;
     public string ModelName { get; set; }
     public string Username { get; set; }
