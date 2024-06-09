@@ -35,12 +35,13 @@ public class MongoDbUsageRepository : IUsageRepository
 
     public async Task<string> Upsert(UsageModel model)
     {
-        var bson = model.ToBsonDocument();
+        var modelJson = model.Serialize();
+        var modelBson = BsonDocument.Parse(modelJson);
         if (model.Id is null)
         {
-            bson.Remove("_id");
-            await _collection.Value.InsertOneAsync(bson);
-            return bson["_id"].ToString();
+            modelBson.Remove("_id");
+            await _collection.Value.InsertOneAsync(modelBson);
+            return modelBson["_id"].ToString();
         }
         throw new NotImplementedException();
         // var filter = Builders<BsonDocument>.Filter.Eq("_id", model.Id);
