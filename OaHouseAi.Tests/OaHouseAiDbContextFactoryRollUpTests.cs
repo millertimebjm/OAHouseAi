@@ -1,8 +1,11 @@
-
 using Microsoft.EntityFrameworkCore.Internal;
-using OAHouseChatGpt.Models.Usages;
-using OAHouseChatGpt.Repositories;
-using OAHouseChatGpt.Services.Configuration;
+//using OAHouseChatGpt.Models.Usages;
+//using OAHouseChatGpt.Repositories;
+//using OaHouseAi.Repository
+using OaHouseAi.Configuration.Services.Interfaces;
+using OaHouseAi.Configuration.Services;
+using OaHouseAi.Repository.Contexts.Interfaces;
+using OaHouseAi.Repository.Contexts;
 
 namespace OaHouseAi.Tests;
 
@@ -19,7 +22,7 @@ public class OaHouseAiDbContextFactoryRollUpTests
             loggingCollectionName: "",
             databaseName: "",
             databaseServer: "",
-            dbContextType: DbContextTypeEnum.InMemory
+            dbContextType: DbContextTypeEnum.InMemory.ToString()
         );
         IOaHouseAiDbContextFactory dbContextFactory = new OaHouseAiDbContextFactoryRollUp(config);
         var values = Enum.GetValues(typeof(DbContextTypeEnum)).Cast<DbContextTypeEnum>();

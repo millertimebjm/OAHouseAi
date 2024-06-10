@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OaHouseAi.Discord.Console\OaHouseAi.Discord.Console.csproj" />
+    <ProjectReference Include="..\OaHouseAi.ChatGpt\OaHouseAi.ChatGpt.csproj" />
+    <ProjectReference Include="..\OaHouseAi.Discord\OaHouseAi.Discord.csproj" />
   </ItemGroup>
 
 </Project>

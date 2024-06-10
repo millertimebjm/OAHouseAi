@@ -1,7 +1,4 @@
-using OAHouseChatGpt.Models.Usages;
-using OAHouseChatGpt.Repositories;
-using OAHouseChatGpt.Repositories.Usages;
-using OAHouseChatGpt.Services.Configuration;
+
 
 namespace OaHouseAi.Tests;
 
