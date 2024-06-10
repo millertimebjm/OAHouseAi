@@ -210,7 +210,7 @@ public class OaDiscordService : IOaDiscord
         var buffer = new byte[1024 * 4];
         var result = await _clientWebSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
         var helloMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-        var helloData = JsonSerializer.Deserialize(helloMessage, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
+        var helloData = JsonSerializer.Deserialize(helloMessage, DiscordJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
         Console.WriteLine("Hello received: " + helloData);
 
         await Identify();
@@ -246,7 +246,7 @@ public class OaDiscordService : IOaDiscord
             }
         };
 
-        var identifyJson = JsonSerializer.Serialize(identifyPayload, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordGatewayIntent);
+        var identifyJson = JsonSerializer.Serialize(identifyPayload, DiscordJsonSerializerContext.Default.DiscordIdentifyDiscordGatewayIntent);
         Log.Debug("OaDiscordSdkService: Identify: {s1}", identifyJson);
         var identifyBytes = Encoding.UTF8.GetBytes(identifyJson);
         await _clientWebSocketWrapper.SendAsync(
@@ -263,7 +263,7 @@ public class OaDiscordService : IOaDiscord
     private async Task SendHeartbeat()
     {
         var heartbeatPayload = new DiscordIdentify<DiscordHeartbeat> { Op = 1, D = null };
-        var heartbeatJson = JsonSerializer.Serialize(heartbeatPayload, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
+        var heartbeatJson = JsonSerializer.Serialize(heartbeatPayload, DiscordJsonSerializerContext.Default.DiscordIdentifyDiscordHeartbeat);
         var heartbeatBytes = Encoding.UTF8.GetBytes(heartbeatJson);
         await _clientWebSocket.SendAsync(
             new ArraySegment<byte>(heartbeatBytes), 
@@ -295,13 +295,13 @@ public class OaDiscordService : IOaDiscord
             messageBuilder.Clear();
 
             var gatewayEvent = JsonSerializer.Deserialize(
-                message, DiscordIdentifyBaseJsonSerializerContext.Default.DiscordIdentifyBase);
+                message, DiscordJsonSerializerContext.Default.DiscordIdentifyBase);
             Console.WriteLine("Event received: " + gatewayEvent.T);
 
             if (gatewayEvent.T == "MESSAGE_CREATE")
             {
                 var gatewayEventDiscordMessage = JsonSerializer.Deserialize(
-                    message, DiscordIdentifyJsonSerializerContext.Default.DiscordIdentifyDiscordMessage);
+                    message, DiscordJsonSerializerContext.Default.DiscordIdentifyDiscordMessage);
                 Console.WriteLine($"Message received in channel {gatewayEventDiscordMessage.D.ChannelId}/{gatewayEventDiscordMessage.D.Id}: {gatewayEventDiscordMessage.D.Content}");
                 await OnMessageReceived(gatewayEventDiscordMessage.D);
             }

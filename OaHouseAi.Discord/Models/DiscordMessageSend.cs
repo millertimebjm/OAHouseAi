@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OaHouseAi.Discord.Services;
 
 namespace OaHouseAi.Discord.Models;
 
@@ -15,7 +16,7 @@ public class DiscordMessageSend
     {
         return new JsonSerializerOptions()
         {
-            TypeInfoResolver = new DiscordMessageSendJsonSerializerContext(),
+            TypeInfoResolver = new DiscordJsonSerializerContext(),
         };
     }
 
@@ -25,10 +26,4 @@ public class DiscordMessageSend
     {
         return JsonSerializer.Serialize(this, GetJsonSerializerOptions());
     }
-}
-
-[JsonSerializable(typeof(DiscordMessageSend))]
-public partial class DiscordMessageSendJsonSerializerContext : JsonSerializerContext
-{
-
 }

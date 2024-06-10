@@ -1,12 +1,9 @@
 using System.Net.WebSockets;
 using Moq;
 using OaHouseAi.ChatGpt.Services.Interfaces;
-using OaHouseAi.ChatGpt.Services;
 using OaHouseAi.Configuration.Services.Interfaces;
-using OaHouseAi.Configuration.Services;
 using OaHouseAi.Discord.Services.Interfaces;
 using OaHouseAi.Discord.Services;
-using Xunit.Sdk;
 using OaHouseAi.Repository.Usages.Interfaces;
 
 namespace OaHouseAi.Tests;

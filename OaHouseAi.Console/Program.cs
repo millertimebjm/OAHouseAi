@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 using OaHouseAi.Discord.Services.Interfaces;
 using OaHouseAi.Discord.Services;
-using OaHouseAi.Repository.Usages.Models;
 using OaHouseAi.Repository.Usages.Interfaces;
 using OaHouseAi.Repository.Usages;
 using OaHouseAi.Repository.Contexts;

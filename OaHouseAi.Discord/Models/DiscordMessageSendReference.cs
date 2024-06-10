@@ -9,9 +9,3 @@ public class DiscordMessageSendReference
     [JsonPropertyName("message_id")]
     public string MessageId { get; set; }
 }
-
-[JsonSerializable(typeof(DiscordMessageSendReference))]
-public partial class DiscordMessageSendReferenceJsonSerializerContext : JsonSerializerContext
-{
-
-}

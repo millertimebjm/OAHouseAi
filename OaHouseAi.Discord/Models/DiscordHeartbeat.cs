@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OaHouseAi.Discord.Services;
 
 namespace OaHouseAi.Discord.Models;
 
@@ -13,7 +14,7 @@ public class DiscordHeartbeat
     {
         return new JsonSerializerOptions()
         {
-            TypeInfoResolver = new DiscordHeartbeatJsonSerializerContext(),
+            TypeInfoResolver = new DiscordJsonSerializerContext(),
         };
     }
 
@@ -23,12 +24,6 @@ public class DiscordHeartbeat
     {
         return JsonSerializer.Serialize(this, GetJsonSerializerOptions());
     }
-}
-
-[JsonSerializable(typeof(DiscordHeartbeat))]
-public partial class DiscordHeartbeatJsonSerializerContext : JsonSerializerContext
-{
-
 }
 
 // var identifyPayload = new

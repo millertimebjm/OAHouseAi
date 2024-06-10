@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OaHouseAi.Discord.Services;
 
 namespace OaHouseAi.Discord.Models;
 
@@ -17,7 +18,7 @@ public class DiscordGatewayIntent
     {
         return new JsonSerializerOptions()
         {
-            TypeInfoResolver = new DiscordGatewayIntentJsonSerializerContext(),
+            TypeInfoResolver = new DiscordJsonSerializerContext(),
         };
     }
 
@@ -27,12 +28,6 @@ public class DiscordGatewayIntent
     {
         return JsonSerializer.Serialize(this, GetJsonSerializerOptions());
     }
-}
-
-[JsonSerializable(typeof(DiscordGatewayIntent))]
-public partial class DiscordGatewayIntentJsonSerializerContext : JsonSerializerContext
-{
-
 }
 
 
