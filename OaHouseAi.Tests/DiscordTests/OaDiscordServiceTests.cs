@@ -4,7 +4,7 @@ using OaHouseAi.ChatGpt.Services.Interfaces;
 using OaHouseAi.Configuration.Services.Interfaces;
 using OaHouseAi.Discord.Services.Interfaces;
 using OaHouseAi.Discord.Services;
-using OaHouseAi.Repository.Usages.Interfaces;
+using OaHouseAi.Repository.Usages.Services.Interfaces;
 
 namespace OaHouseAi.Tests;
 

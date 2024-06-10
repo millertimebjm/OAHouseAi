@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using OaHouseAi.Repository.Usages.Models; 
-using OaHouseAi.Repository.Usages.Interfaces;
+using OaHouseAi.Repository.Usages.Services.Interfaces;
 using OaHouseAi.Configuration.Services.Interfaces;
 
-namespace OaHouseAi.Repository.Usages;
+namespace OaHouseAi.Repository.Usages.Services;
 
 public class MongoDbUsageRepository : IUsageRepository
 {

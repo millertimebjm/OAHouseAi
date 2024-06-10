@@ -1,6 +1,6 @@
 using OaHouseAi.Repository.Usages.Models;
 
-namespace OaHouseAi.Repository.Usages.Interfaces;
+namespace OaHouseAi.Repository.Usages.Services.Interfaces;
 
 public interface IUsageRepository
 {

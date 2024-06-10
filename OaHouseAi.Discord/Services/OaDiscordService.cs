@@ -1,16 +1,14 @@
 using OaHouseAi.ChatGpt.Services.Interfaces;
 using Discord.WebSocket;
-using Discord;
 using OaHouseAi.Configuration.Services.Interfaces;
 using System.Diagnostics.CodeAnalysis;
-using OaHouseAi.Repository.Usages.Models;
 using System.Text.Json;
 using System.Net.WebSockets;
 using System.Text;
 using OaHouseAi.Discord.Services.Interfaces;
 using OaHouseAi.Discord.Models;
 using OaHouseAi.ChatGpt.Models;
-using OaHouseAi.Repository.Usages.Interfaces;
+using OaHouseAi.Repository.Usages.Services.Interfaces;
 using Serilog;
 
 namespace OaHouseAi.Discord.Services;
